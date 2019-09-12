@@ -1,13 +1,15 @@
-import express from 'express'
+import express from "express";
 
-import Logger from './loaders/logger';
-import config from './config';
-import Loaders from './loaders'
+import Logger from "./loaders/logger";
+import config from "./config";
+import Loaders from "./loaders";
+
+import { Connection } from "./loaders/mysql";
 
 const startServer = () => {
-  const app = express()
+  const app = express();
 
-  Loaders({ expressApp: app })
+  Loaders({ expressApp: app });
 
   app.listen(config.port, err => {
     if (err) {
@@ -21,6 +23,6 @@ const startServer = () => {
       ################################################
     `);
   });
-}
+};
 
-startServer()
+startServer();
