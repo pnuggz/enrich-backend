@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import fs from "fs";
 
 // Set the NODE_ENV to 'development' by default
 process.env.NODE_ENV = process.env.NODE_ENV || "development";
@@ -32,7 +33,20 @@ const config = {
   plaid: {
     clientId: process.env.PLAID_CLIENT_ID,
     publicKey: process.env.PLAID_PUBLIC_KEY,
-    secretKey: process.env.PLAID_SECRET
+    secretKey: process.env.PLAID_SECRET,
+    env: process.env.PLAID_ENV,
+    version: process.env.PLAID_VERSION
+  },
+
+  jwt: {
+    publicKey: fs.readFileSync("./public.key", "utf8"),
+    privateKey: fs.readFileSync("./private.key", "utf8"),
+    issuer: process.env.JWT_ISSUER,
+    audience: process.env.JWT_AUDIENCE
+  },
+
+  sendgrid: {
+    apiKey: process.env.SENDGRID_API_KEY
   }
 };
 
