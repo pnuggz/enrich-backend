@@ -15,8 +15,14 @@ const SignupRouter = app => {
     // ADD MIDDLEWARE VALIDATOR HERE
     async (req, res) => {
       const userData = await SignupService.submit(req);
+      const userDataStatusCode = userData.status.code
       const user = userData.user;
       const userVerification = userData.verification;
+
+      if(userDataStatusCode === 500) {
+        res.status(userDataStatusCode).json(userData)
+        return;
+      }
 
       const baseUrl = req.protocol + "://" + req.hostname + ":" + config.port;
 
@@ -33,8 +39,14 @@ const SignupRouter = app => {
         }
       };
       const email = await EmailService.send(req, emailData, 1);
+      const emailStatusCode = email.status.code
 
-      res.json(userData);
+      if(emailStatusCode === 500) {
+        res.status(userDataStatusCode).json(email)
+        return
+      }
+
+      res.status(userDataStatusCode).json(userData);
     }
   );
 
@@ -42,10 +54,14 @@ const SignupRouter = app => {
     "/authenticate/:verificationToken",
     // ADD MIDDLEWARE VALIDATOR HERE
     async (req, res) => {
-      const isVerified = await SignupService.authenticate(req);
-      const user = isVerified.user;
+      const userData = await SignupService.authenticate(req);
+      const userDataStatusCode = userData.status.code
+      const user = userData.user;
 
-      if (isVerified) {
+      if (userDataStatusCode === 500) {
+        res.status(userDataStatusCode).json(userData)
+        return;
+      } else {
         const baseUrl = req.protocol + "://" + req.hostname + ":" + config.port;
 
         const emailData = {
@@ -57,11 +73,15 @@ const SignupRouter = app => {
             login_link: baseUrl + "/login"
           }
         };
+        
         const email = await EmailService.send(req, emailData, 2);
+        const emailStatusCode = email.status.code
+        if(emailStatusCode === 500) {
+          res.status(userDataStatusCode).json(email)
+          return
+        }
 
-        res.json(true);
-      } else {
-        res.json(false);
+        res.status(userDataStatusCode).json(userData);
       }
     }
   );

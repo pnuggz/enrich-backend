@@ -39,12 +39,21 @@ const create = async req => {
     const [rows4, fields4] = await Connection().query(queryString4);
 
     return {
+      status: {
+        code: 200,
+        error: ``,
+        message: `Account has been successfully created. An email has been sent to verify and activate your account.`
+      },
       user: rows2[0],
       verification: rows4[0]
     };
   } catch (err) {
     console.log(err);
-    return;
+    return {
+      status: 500,
+      error: err,
+      message: `Internal error with creation of the user in the database.`
+    }
   }
 };
 
@@ -68,10 +77,21 @@ const authenticate = async req => {
       WHERE users_verification.verification_token = "${verificationToken}"`;
     const [rows2, fields2] = await Connection().query(queryString2);
 
-    return rows2[0];
+    return {
+      status: {
+        code: 200,
+        error: ``,
+        message: `Account has been been activated.`
+      },
+      user: rows2[0]
+    };
   } catch (err) {
     console.log(err);
-    return;
+    return {
+      status: 500,
+      error: err,
+      message: `Internal error with verification of the user in the database.`
+    }
   }
 };
 

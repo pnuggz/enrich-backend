@@ -14,9 +14,22 @@ const send = async (req, emailData, templateId) => {
   try {
     sgMail.setApiKey(sendgridConfig.apiKey);
     sgMail.send(emailData);
+    return {
+      status: {
+        code: 200,
+        error: ``,
+        message: ``
+      }
+    }
   } catch (err) {
     console.log(err);
-    return res.status(500).json(error);
+    return {
+      status: {
+        code: 500,
+        error: err,
+        message: "Internal error with sending of the email verification email."
+      }
+    }
   }
 };
 

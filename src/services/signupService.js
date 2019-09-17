@@ -8,12 +8,17 @@ const submit = async req => {
 
 const authenticate = async req => {
   const userData = await SignupModel.authenticate(req);
+  const userDataStatusCode = userData.status.code
+
+  if(userDataStatusCode === 500) {
+    return userData
+  }
+
   const token = await TokenModel.generateToken(req, userData);
 
-  return {
-    user: userData,
-    token: token
-  };
+  Object.assign(userData, token)
+
+  return userData
 };
 
 const SignupService = {

@@ -12,6 +12,10 @@ if (!envFound) {
 }
 
 const config = {
+  frontend: {
+    baseUrl: process.env.FRONTEND_BASE_URL
+  },
+
   port: process.env.PORT,
 
   logs: {
