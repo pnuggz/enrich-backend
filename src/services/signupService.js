@@ -13,11 +13,7 @@ const authenticate = async req => {
   if(userDataStatusCode === 500) {
     return userData
   }
-
-  const token = await TokenModel.generateToken(req, userData);
-
-  Object.assign(userData, token)
-
+  
   return userData
 };
 

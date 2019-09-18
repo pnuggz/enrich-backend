@@ -11,19 +11,18 @@ const SignupRouter = app => {
   app.use("/signup", route);
 
   route.post(
-    "/submit",
+    "/",
     // ADD MIDDLEWARE VALIDATOR HERE
     async (req, res) => {
       const userData = await SignupService.submit(req);
       const userDataStatusCode = userData.status.code
-      const user = userData.user;
-      const userVerification = userData.verification;
-
       if(userDataStatusCode === 500) {
         res.status(userDataStatusCode).json(userData)
         return;
       }
 
+      const user = userData.user;
+      const userVerification = userData.verification;
       const baseUrl = req.protocol + "://" + req.hostname + ":" + config.port;
 
       const emailData = {

@@ -26,12 +26,14 @@ const generateToken = (req, userData) => {
   return token;
 };
 
-const checkToken = (req, userData) => {
+const checkToken = (req) => {
   const publicKey = jwtConfig.publicKey;
+  const subject = req.userData.email
+  const token = req.token
 
   const issuer = jwtConfig.issuer;
   const audience = jwtConfig.audience;
-  const subject = "xrizzx@gmail.com"; // NEED TO use data.email of some sort
+  const subject = subject; 
 
   const verifyOptions = {
     issuer: issuer,
