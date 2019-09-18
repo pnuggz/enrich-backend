@@ -12,7 +12,7 @@ const generateToken = (req, userData) => {
 
   const issuer = jwtConfig.issuer;
   const audience = jwtConfig.audience;
-  const subject = userData.email;
+  const subject = userData.user.email;
 
   const signOptions = {
     issuer: issuer,
@@ -26,14 +26,13 @@ const generateToken = (req, userData) => {
   return token;
 };
 
-const checkToken = (req) => {
+const checkToken = req => {
   const publicKey = jwtConfig.publicKey;
-  const subject = req.userData.email
-  const token = req.token
+  const token = req.token;
 
   const issuer = jwtConfig.issuer;
   const audience = jwtConfig.audience;
-  const subject = subject; 
+  const subject = req.userData.user.email;
 
   const verifyOptions = {
     issuer: issuer,

@@ -1,6 +1,7 @@
 import express, { Router } from "express";
 
 import signup from "./routes/signup";
+import login from "./routes/login";
 import user from "./routes/user";
 import plaid from "./routes/plaid";
 
@@ -11,7 +12,7 @@ const routes = () => {
     .use(express.urlencoded({ extended: true }));
 
   signup(app);
-
+  login(app);
   user(app);
   plaid(app);
 

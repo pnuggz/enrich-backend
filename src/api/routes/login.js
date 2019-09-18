@@ -12,9 +12,9 @@ const LoginRouter = app => {
     // ADD MIDDLEWARE VALIDATOR HERE
     async (req, res) => {
       const userData = await LoginService.submit(req);
-      const userDataStatusCode = userData.status.code
-      if(userDataStatusCode === 500 || userDataStatusCode === 401) {
-        res.status(userDataStatusCode).json(userData)
+      const userDataStatusCode = userData.status.code;
+      if (userDataStatusCode === 500 || userDataStatusCode === 401) {
+        res.status(userDataStatusCode).json(userData);
         return;
       }
 

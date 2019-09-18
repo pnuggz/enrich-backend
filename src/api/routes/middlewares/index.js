@@ -1,7 +1,9 @@
-import isAuth from "./isAuth"
+import isAuth from "./isAuth";
+import renewToken from "./renewToken";
 
 const middlewares = {
-  isAuth: isAuth
-}
+  isAuth: isAuth,
+  renewToken: renewToken
+};
 
-export default middlewares
+export default middlewares;

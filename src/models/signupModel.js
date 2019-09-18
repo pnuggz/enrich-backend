@@ -4,10 +4,10 @@ import crypto from "crypto-random-string";
 
 const create = async req => {
   const data = req.body;
-  const username = data.username;
-  const email = data.email;
-  const password = data.password;
-  const password_salt = data.password_salt;
+  const username = data.username.value;
+  const email = data.email.value;
+  const password = data.password.value;
+  const password_salt = data.password_salt.value;
 
   try {
     // Create the user
@@ -53,7 +53,7 @@ const create = async req => {
       status: 500,
       error: err,
       message: `Internal error with creation of the user in the database.`
-    }
+    };
   }
 };
 
@@ -91,7 +91,7 @@ const authenticate = async req => {
       status: 500,
       error: err,
       message: `Internal error with verification of the user in the database.`
-    }
+    };
   }
 };
 

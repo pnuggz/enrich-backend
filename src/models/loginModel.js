@@ -1,10 +1,10 @@
 import { Connection } from "../loaders/mysql";
-import bcrypt from "bcryptjs"
+import bcrypt from "bcryptjs";
 
 const validate = async req => {
-  const data = req.body
-  const uniqueLogin = data.uniqueLogin
-  const password = data.password
+  const data = req.body;
+  const uniqueLogin = data.uniqueLogin.value;
+  const password = data.password.value;
 
   try {
     const queryString1 = `
@@ -14,12 +14,12 @@ const validate = async req => {
       users.password,
       users.password_salt
       FROM users
-      WHERE users.email = ${uniqueLogin} OR users.username = ${uniqueLogin}
+      WHERE users.email = "${uniqueLogin}" OR users.username = "${uniqueLogin}"
       LIMIT 1
-    `
+    `;
     const [rows1, fields1] = await Connection().query(queryString1);
 
-    if(rows1.length === 0) {
+    if (rows1.length === 0) {
       return {
         status: {
           code: 401,
@@ -29,14 +29,14 @@ const validate = async req => {
       };
     }
 
-    const dbPassword = rows1[0].password
-    const passwordSalt = rows1[0].password_salt
-    delete rows1[0].password
-    delete rows1[0].password_salt
+    const dbPassword = rows1[0].password;
+    const passwordSalt = rows1[0].password_salt;
+    delete rows1[0].password;
+    delete rows1[0].password_salt;
 
-    const hashedPassword = hashPassword(password, passwordSalt)
+    const hashedPassword = await hashPassword(password, passwordSalt);
 
-    if(dbPassword !== hashedPassword) {
+    if (dbPassword !== hashedPassword) {
       return {
         status: {
           code: 401,
@@ -54,8 +54,8 @@ const validate = async req => {
       },
       user: rows1[0]
     };
-  } catch(err) {
-    console.log(err)
+  } catch (err) {
+    console.log(err);
     return {
       status: {
         code: 500,
@@ -64,21 +64,20 @@ const validate = async req => {
       }
     };
   }
-}
+};
 
-const hashPassword = (password, passwordSalt) => {
-  let hashedPassword = ""
+const hashPassword = async (password, passwordSalt) => {
+  const hashedPassword = await new Promise((res, rej) => {
+    bcrypt.hash(password, passwordSalt, (err, hash) => {
+      if (err) {
+        console.log(err);
+        rej(err);
+      }
+      res(hash);
+    });
+  });
 
-  bcrypt.hash(password, passwordSalt, (err, hash) => {
-    if (err) {
-      console.log(err);
-      return false;
-    }
-
-    hashedPassword = hash
-  })
-
-  return hashedPassword
+  return hashedPassword;
 };
 
 const LoginModel = {

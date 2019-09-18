@@ -20,7 +20,7 @@ const send = async (req, emailData, templateId) => {
         error: ``,
         message: ``
       }
-    }
+    };
   } catch (err) {
     console.log(err);
     return {
@@ -29,7 +29,7 @@ const send = async (req, emailData, templateId) => {
         error: err,
         message: "Internal error with sending of the email verification email."
       }
-    }
+    };
   }
 };
 
