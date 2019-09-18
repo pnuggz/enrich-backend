@@ -1,4 +1,4 @@
-import config from '../../../config';
+import AuthenticationService from "../../../services/authenticationService"
 
 const getTokenFromHeader = req => {
   /**
@@ -15,13 +15,23 @@ const getTokenFromHeader = req => {
 };
 
 const isAuth = (req, res, next) => {
-  const verification = getTokenFromHeader(req)
+  const token = getTokenFromHeader(req)
+  req.token = token
+  const verification = AuthenticationService.authenticate(req)
+
   if(verification) {
     req.tokenAuthentication = true
     next()
   } else {
     req.tokenAuthentication = false
-    next()
+    const data = {
+      status: {
+        code: 401,
+        err: "Bad authorisation",
+        message: "Token has expired."
+      }
+    }
+    res.status(401).json(data)
   }
 }
 
