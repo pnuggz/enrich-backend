@@ -18,7 +18,7 @@ const LoginRouter = app => {
         return;
       }
 
-      res.status(userDataStatusCode).json(userData);
+      res.json(userData);
     }
   );
 };

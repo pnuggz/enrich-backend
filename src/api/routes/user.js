@@ -22,10 +22,11 @@ const UserRouter = app => {
       const userDataStatusCode = userData.status.code;
 
       if (userDataStatusCode === 500 || userDataStatusCode === 401) {
-        return res.status(userDataStatusCode).json(userDataStatusCode);
+        res.status(userDataStatusCode).json(userDataStatusCode);
+        return;
       }
 
-      return res.json(userData);
+      res.json(userData);
     }
   );
 
@@ -33,20 +34,18 @@ const UserRouter = app => {
     "/authenticate",
     // ADD MIDDLEWARE HERE
     async (req, res) => {
-      console.log(req.body);
-      req.token = req.body.token;
       const authentication = await AuthenticationService.authenticate(req);
 
-      console.log(authentication);
       if (!authentication) {
-        const data = {
+        const badData = {
           status: {
             code: 401,
             err: "Bad authorisation",
             message: "Token has expired."
           }
         };
-        res.status(401).json(data);
+        res.status(401).json(badData);
+        return;
       }
 
       const data = {
@@ -54,9 +53,12 @@ const UserRouter = app => {
           code: 200,
           err: "",
           message: "Token is authenticated"
-        }
+        },
+        user: req.body.user,
+        token: req.token
       };
-      res.status(200).json(data);
+
+      res.json(data);
     }
   );
 

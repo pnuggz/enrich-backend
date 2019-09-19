@@ -15,9 +15,9 @@ const SignupRouter = app => {
     // ADD MIDDLEWARE VALIDATOR HERE
     async (req, res) => {
       const userData = await SignupService.submit(req);
-      const userDataStatusCode = userData.status.code
-      if(userDataStatusCode === 500) {
-        res.status(userDataStatusCode).json(userData)
+      const userDataStatusCode = userData.status.code;
+      if (userDataStatusCode === 500) {
+        res.status(userDataStatusCode).json(userData);
         return;
       }
 
@@ -38,14 +38,14 @@ const SignupRouter = app => {
         }
       };
       const email = await EmailService.send(req, emailData, 1);
-      const emailStatusCode = email.status.code
+      const emailStatusCode = email.status.code;
 
-      if(emailStatusCode === 500) {
-        res.status(userDataStatusCode).json(email)
-        return
+      if (emailStatusCode === 500) {
+        res.status(userDataStatusCode).json(email);
+        return;
       }
 
-      res.status(userDataStatusCode).json(userData);
+      res.json(userData);
     }
   );
 
@@ -54,11 +54,11 @@ const SignupRouter = app => {
     // ADD MIDDLEWARE VALIDATOR HERE
     async (req, res) => {
       const userData = await SignupService.authenticate(req);
-      const userDataStatusCode = userData.status.code
+      const userDataStatusCode = userData.status.code;
       const user = userData.user;
 
       if (userDataStatusCode === 500) {
-        res.status(userDataStatusCode).json(userData)
+        res.status(userDataStatusCode).json(userData);
         return;
       } else {
         const baseUrl = req.protocol + "://" + req.hostname + ":" + config.port;
@@ -72,15 +72,15 @@ const SignupRouter = app => {
             login_link: baseUrl + "/login"
           }
         };
-        
+
         const email = await EmailService.send(req, emailData, 2);
-        const emailStatusCode = email.status.code
-        if(emailStatusCode === 500) {
-          res.status(userDataStatusCode).json(email)
-          return
+        const emailStatusCode = email.status.code;
+        if (emailStatusCode === 500) {
+          res.status(userDataStatusCode).json(email);
+          return;
         }
 
-        res.status(userDataStatusCode).json(userData);
+        res.json(userData);
       }
     }
   );

@@ -10,7 +10,8 @@ const submit = async req => {
   }
 
   const token = await TokenModel.generateToken(req, userData);
-  userData.token = token;
+  userData.token = token.token;
+  userData.tokenCreatedDate = token.createdDate;
 
   return userData;
 };

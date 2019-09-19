@@ -18,11 +18,14 @@ const generateToken = (req, userData) => {
     issuer: issuer,
     subject: subject,
     audience: audience,
-    expiresIn: "2100",
+    expiresIn: 2100,
     algorithm: "RS256"
   };
 
-  const token = jwt.sign(payload, privateKey, signOptions);
+  const token = {
+    token: jwt.sign(payload, privateKey, signOptions),
+    createdDate: new Date()
+  };
   return token;
 };
 
@@ -38,13 +41,17 @@ const checkToken = req => {
     issuer: issuer,
     subject: subject,
     audience: audience,
-    expiresIn: "2100",
+    expiresIn: 2100,
     algorithm: ["RS256"]
   };
 
-  const verify = jwt.verify(token, publicKey, verifyOptions);
-
-  return verify;
+  try {
+    const verify = jwt.verify(token, publicKey, verifyOptions);
+    return true;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
 };
 
 const TokenModel = {
