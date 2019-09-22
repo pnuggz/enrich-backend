@@ -1,5 +1,4 @@
 import SignupModel from "../models/signupModel";
-import TokenModel from "../models/tokenModel";
 
 const submit = async req => {
   const userData = await SignupModel.create(req);

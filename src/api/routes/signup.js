@@ -12,7 +12,6 @@ const SignupRouter = app => {
 
   route.post(
     "/",
-    // ADD MIDDLEWARE VALIDATOR HERE
     async (req, res) => {
       const userData = await SignupService.submit(req);
       const userDataStatusCode = userData.status.code;
@@ -51,7 +50,6 @@ const SignupRouter = app => {
 
   route.get(
     "/authenticate/:verificationToken",
-    // ADD MIDDLEWARE VALIDATOR HERE
     async (req, res) => {
       const userData = await SignupService.authenticate(req);
       const userDataStatusCode = userData.status.code;

@@ -1,18 +1,18 @@
 import { Router } from "express";
 
-import LoginService from "../../services/loginService";
+import AccountService from "../../services/accountService";
 
-const LoginRouter = app => {
+const AccountRouter = app => {
   const route = Router();
 
-  app.use("/login", route);
+  app.use("/account", route);
 
   route.post(
-    "/",
+    "/token",
     async (req, res) => {
-      const userData = await LoginService.submit(req);
+      const userData = await AccountService.exchangeToken(req)
       const userDataStatusCode = userData.status.code;
-      if (userDataStatusCode === 500 || userDataStatusCode === 401) {
+      if (userDataStatusCode === 500) {
         res.status(userDataStatusCode).json(userData);
         return;
       }
@@ -22,4 +22,4 @@ const LoginRouter = app => {
   );
 };
 
-export default LoginRouter;
+export default AccountRouter;
