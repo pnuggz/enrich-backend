@@ -1,46 +1,38 @@
 import { Connection } from "../loaders/mysql";
-import { Plaid } from "../loaders/mysql";
+import { Plaid } from "../loaders/plaid";
 
-const getAccessToken = async req => {
+const getAccessToken = req => {
   const data = req.body;
-  const publicToken = data.plaidPublicToken
+  const publicToken = data.plaidPublicToken;
 
-  try {
-    const tokenResponse = new Promise((res,rej) => {
-      Plaid.exchangePublicToken(publicToken, function(error, tokenResponse) {
-        if (error != null) {
-          console.log('Could not exchange public_token!' + '\n' + error);
-          return rej(error)
-        }
-        res(tokenResponse)
-      })
-    })
+  return new Promise((res, rej) => {
+    Plaid().exchangePublicToken(publicToken, (error, tokenResponse) => {
+      if (error != null) {
+        console.log("Could not exchange public_token!" + "\n" + error);
+        rej(error);
+      }
+      res(tokenResponse);
+    });
+  });
+};
 
-    data.status = {
-      code: 200,
-      error: ``,
-      message: ``
-    }
+const getAccountDetails = plaidData => {
+  const accessToken = plaidData.access_token;
 
-    data.plaidData = {
-      accessToken: tokenResponse.access_token,
-      itemId: tokenResponse.item_id
-    }
-
-    return data
-  } catch(err) {
-    console.log(err);
-    data.status = {
-      code: 500,
-      error: `err`,
-      message: `Internal error with the exchange process.`
-    }
-    return data
-  }
-}
+  return new Promise((res, rej) => {
+    Plaid().getAccounts(accessToken, (error, result) => {
+      if (error != null) {
+        console.log("Could not get account details" + "\n" + error);
+        rej(error);
+      }
+      res(result);
+    });
+  });
+};
 
 const PlaidModel = {
-  getAccessToken: getAccessToken
+  getAccessToken: getAccessToken,
+  getAccountDetails: getAccountDetails
 };
 
 export default PlaidModel;

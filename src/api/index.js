@@ -3,7 +3,7 @@ import express, { Router } from "express";
 import signup from "./routes/signup";
 import login from "./routes/login";
 import user from "./routes/user";
-import plaid from "./routes/plaid";
+import account from "./routes/account";
 
 // guaranteed to get dependencies
 const routes = () => {
@@ -14,7 +14,7 @@ const routes = () => {
   signup(app);
   login(app);
   user(app);
-  plaid(app);
+  account(app);
 
   return app;
 };

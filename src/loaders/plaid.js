@@ -8,7 +8,7 @@ const plaidClient = new plaid.Client(
   plaidConfig.clientId,
   plaidConfig.secretKey,
   plaidConfig.publicKey,
-  plaid.environments.development,
+  plaidConfig.env,
   {
     version: plaidConfig.version
   }
