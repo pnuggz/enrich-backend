@@ -16,8 +16,6 @@ const linkPlaidAccount = async (userData, plaidData) => {
   const userId = userData.id;
   const accountData = plaidData.accountData;
 
-  console.log(accountData);
-
   try {
     const queryString1 = `INSERT INTO plaid (access_token, item_id) VALUES ("${plaidData.access_token}", "${plaidData.item_id}")`;
     const [rows1, fields1] = await Connection().query(queryString1);
@@ -31,11 +29,29 @@ const linkPlaidAccount = async (userData, plaidData) => {
       const balances = account.balances;
       const queryString3 = `INSERT INTO plaid_accounts (plaid_id, account_id, name, official_name, type, subtype) VALUES (${plaidId}, "${account.account_id}", "${account.name}", "${account.official_name}", "${account.type}", "${account.subtype}")`;
       const [rows3, fields3] = await Connection().query(queryString3);
+      const accountId = rows3.insertId
 
-      console.log(balances);
+      const queryString4 = `INSERT INTO plaid_accounts_balance (plaid_accounts_id, balance_available, balance_current, balance_limit, iso_currency_code) VALUES (${accountId}, ${balances.available}, ${balances.current}, ${balances.limit}, "${balances.is_currency_code}")`;
+      const [rows4, fields4] = await Connection().query(queryString4);
     }
+
+    const queryString5 = `SELECT plaid_accounts.id, plaid_accounts.plaid_id, plaid_accounts.name, plaid_accounts.official_name, plaid_accounts.type, plaid_accounts.subtype FROM plaid_accounts WHERE plaid_accounts.plaid_id = ${plaidId}`
+    const [rows5, fields5] = await Connection().query(queryString5)
+    
+    userData.accountsData = rows5
+    userData.status = {
+      code: 200,
+      error: ``,
+      msg: `Account has been successfully linked.`
+    }
+    return userData
   } catch (err) {
-    console.log(err);
+    userData.status = {
+      code: 500,
+      error: err,
+      msg: `Internal server error with linking of the Plaid account with the database.`
+    };
+    return userData
   }
 };
 

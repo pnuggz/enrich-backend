@@ -22,6 +22,8 @@ const AccountRouter = app => {
       return;
     }
 
+    console.log(userData)
+
     res.json(userData);
   });
 };
