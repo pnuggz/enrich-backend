@@ -2,6 +2,8 @@ import { Connection } from "../loaders/mysql";
 import bcrypt from "bcryptjs";
 
 const validate = async req => {
+  const returnData = {}
+
   const data = req.body;
   const uniqueLogin = data.uniqueLogin.value;
   const password = data.password.value;
@@ -46,28 +48,29 @@ const validate = async req => {
       };
     }
 
-    return {
-      status: {
-        code: 200,
-        error: ``,
-        message: `Login successful.`
-      },
+    returnData.status = {
+      code: 200,
+      error: ``,
+      message: `Login successful.`
+    }
+    returnData.data = {
       user: rows1[0]
-    };
+    }
+
+    return returnData
   } catch (err) {
     console.log(err);
-    return {
-      status: {
-        code: 500,
-        error: `err`,
-        message: `Internal error with the login process.`
-      }
-    };
+    returnData.status = {
+      code: 500,
+      error: `err`,
+      message: `Internal error with the login process.`
+    }
+    return returnData
   }
 };
 
-const hashPassword = async (password, passwordSalt) => {
-  const hashedPassword = await new Promise((res, rej) => {
+const hashPassword = (password, passwordSalt) => {
+  return new Promise((res, rej) => {
     bcrypt.hash(password, passwordSalt, (err, hash) => {
       if (err) {
         console.log(err);
@@ -76,8 +79,6 @@ const hashPassword = async (password, passwordSalt) => {
       res(hash);
     });
   });
-
-  return hashedPassword;
 };
 
 const LoginModel = {

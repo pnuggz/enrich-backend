@@ -10,13 +10,18 @@ const LoginRouter = app => {
   route.post(
     "/",
     async (req, res) => {
+      const returnData = {}
+
       const userData = await LoginService.submit(req);
       const userDataStatusCode = userData.status.code;
       if (userDataStatusCode === 500 || userDataStatusCode === 401) {
-        res.status(userDataStatusCode).json(userData);
+        returnData.status = userData.status
+        res.status(userDataStatusCode).json(returnData);
         return;
       }
 
+      returnData.data = userData.data
+      returnData.status = userData.status
       res.json(userData);
     }
   );

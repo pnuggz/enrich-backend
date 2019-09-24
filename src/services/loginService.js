@@ -2,18 +2,32 @@ import LoginModel from "../models/loginModel";
 import TokenModel from "../models/tokenModel";
 
 const submit = async req => {
+  const returnData = {}
+
+  try{
   const userData = await LoginModel.validate(req);
-  const userDataStatusCode = userData.status.code;
+    const user = userData.data
+    const userDataStatusCode = userData.status.code;
+    if (userDataStatusCode === 500 || userDataStatusCode === 401) {
+      returnData.status = userData.status
+      return returnData;
+    }
 
-  if (userDataStatusCode === 500 || userDataStatusCode === 401) {
-    return userData;
+    const token = await TokenModel.generateToken(req, user);
+
+    returnData.data = userData.data
+    returnData.token = token
+    returnData.tokenCreatedDate = token.createdDate
+    returnData.status = userData.status
+    return returnData;
+  } catch(err) {
+    console.log(err)
+    returnData.status = {
+      code: 500,
+      error: err,
+      msg: `Internal server error with validation of the user.`
+    }
   }
-
-  const token = await TokenModel.generateToken(req, userData);
-  userData.token = token.token;
-  userData.tokenCreatedDate = token.createdDate;
-
-  return userData;
 };
 
 const LoginService = {

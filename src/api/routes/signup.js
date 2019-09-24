@@ -13,18 +13,21 @@ const SignupRouter = app => {
   route.post(
     "/",
     async (req, res) => {
+      const returnData = {}
+
       const userData = await SignupService.submit(req);
       const userDataStatusCode = userData.status.code;
       if (userDataStatusCode === 500) {
-        res.status(userDataStatusCode).json(userData);
+        returnData.status = userData.status
+        res.status(userDataStatusCode).json(returnData);
         return;
       }
 
-      const user = userData.user;
-      const userVerification = userData.verification;
+      const user = userData.data.user;
+      const userVerification = userData.data.verification;
       const baseUrl = req.protocol + "://" + req.hostname + ":" + config.port;
 
-      const emailData = {
+      const emailOptions = {
         to: user.email,
         from: "noreply@hiryan.net",
         dynamic_template_data: {
@@ -36,32 +39,37 @@ const SignupRouter = app => {
             userVerification.verification_token
         }
       };
-      const email = await EmailService.send(req, emailData, 1);
-      const emailStatusCode = email.status.code;
-
+      const emailData = await EmailService.send(req, emailOptions, 1);
+      const emailStatusCode = emailData.status.code;
       if (emailStatusCode === 500) {
-        res.status(userDataStatusCode).json(email);
+        returnData.status = emailData.status
+        res.status(emailStatusCode).json(returnData);
         return;
       }
 
-      res.json(userData);
+      returnData.data = user
+      returnData.status = userData.status
+      res.json(returnData);
     }
   );
 
   route.get(
     "/authenticate/:verificationToken",
     async (req, res) => {
+      const returnData = {}
+
       const userData = await SignupService.authenticate(req);
       const userDataStatusCode = userData.status.code;
-      const user = userData.user;
+      const user = userData.data.user;
 
       if (userDataStatusCode === 500) {
-        res.status(userDataStatusCode).json(userData);
+        returnData.status = userData.status
+        res.status(userDataStatusCode).json(returnData);
         return;
       } else {
         const baseUrl = req.protocol + "://" + req.hostname + ":" + config.port;
 
-        const emailData = {
+        const emailOptions = {
           to: user.email,
           from: "noreply@hiryan.net",
           dynamic_template_data: {
@@ -71,14 +79,17 @@ const SignupRouter = app => {
           }
         };
 
-        const email = await EmailService.send(req, emailData, 2);
-        const emailStatusCode = email.status.code;
+        const emailData = await EmailService.send(req, emailOptions, 2);
+        const emailStatusCode = emailData.status.code;
         if (emailStatusCode === 500) {
-          res.status(userDataStatusCode).json(email);
+          returnData.status = emailData.status
+          res.status(emailStatusCode).json(returnData);
           return;
         }
 
-        res.json(userData);
+        returnData.data = user
+        returnData.status = userData.status
+        res.json(returnData);
       }
     }
   );
