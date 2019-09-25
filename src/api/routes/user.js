@@ -12,23 +12,17 @@ const UserRouter = app => {
 
   app.use("/users", route);
 
-  route.get(
-    "/",
-    isAuth,
-    renewToken,
-    // ADD MIDDLEWARE VALIDATOR HERE,
-    async (req, res) => {
-      const userData = await UserService.get();
-      const userDataStatusCode = userData.status.code;
+  route.get("/", isAuth, renewToken, async (req, res) => {
+    const userData = await UserService.get();
+    const userDataStatusCode = userData.status.code;
 
-      if (userDataStatusCode === 500 || userDataStatusCode === 401) {
-        res.status(userDataStatusCode).json(userDataStatusCode);
-        return;
-      }
-
-      res.json(userData);
+    if (userDataStatusCode === 500 || userDataStatusCode === 401) {
+      res.status(userDataStatusCode).json(userDataStatusCode);
+      return;
     }
-  );
+
+    res.json(userData);
+  });
 
   route.post(
     "/authenticate",

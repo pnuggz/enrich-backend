@@ -2,7 +2,7 @@ import { Connection } from "../loaders/mysql";
 import { Plaid } from "../loaders/plaid";
 
 const getAccessToken = req => {
-  const data = req.body;
+  const data = req.body.data;
   const publicToken = data.plaidPublicToken;
 
   return new Promise((res, rej) => {

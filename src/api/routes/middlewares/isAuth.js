@@ -5,32 +5,47 @@ const getTokenFromHeader = req => {
    * @TODO Edge and Internet Explorer do some weird things with the headers
    * So I believe that this should handle more 'edge' cases ;)
    */
-  if (
-    (req.headers.authorization &&
-      req.headers.authorization.split(" ")[0] === "Token") ||
-    (req.headers.authorization &&
-      req.headers.authorization.split(" ")[0] === "Bearer")
-  ) {
-    return req.headers.authorization.split(" ")[1];
-  }
-  return null;
+  return new Promise((res, rej) => {
+    if (
+      (req.headers.authorization &&
+        req.headers.authorization.split(" ")[0] === "Token") ||
+      (req.headers.authorization &&
+        req.headers.authorization.split(" ")[0] === "Bearer")
+    ) {
+      res(req.headers.authorization.split(" ")[1]);
+    }
+    rej(null);
+  });
 };
 
-const isAuth = (req, res, next) => {
-  const token = getTokenFromHeader(req);
-  req.token = token;
-  const verification = AuthenticationService.authenticate(req);
+const isAuth = async (req, res, next) => {
+  try {
+    const token = await getTokenFromHeader(req);
+    req.token = token;
+    const verification = await AuthenticationService.authenticate(req);
 
-  if (verification) {
+    const verificationStatusCode = verification.status.code;
+    if (verificationStatusCode === 500 || verificationStatusCode === 401) {
+      req.tokenAuthentication = false;
+      const data = {
+        status: {
+          code: 401,
+          error: "Bad authorisation",
+          msg: "Token has expired."
+        }
+      };
+      res.status(verificationStatusCode).json(data);
+    }
+
     req.tokenAuthentication = true;
     next();
-  } else {
-    req.tokenAuthentication = false;
+  } catch (err) {
+    console.log(err);
     const data = {
       status: {
         code: 401,
-        err: "Bad authorisation",
-        message: "Token has expired."
+        error: err,
+        msg: "Token has expired."
       }
     };
     res.status(401).json(data);

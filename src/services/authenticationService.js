@@ -1,21 +1,36 @@
 import TokenModel from "../models/tokenModel";
 
 const authenticate = async req => {
-  const userData = {
-    user: req.body.user
-  };
-  req.userData = userData;
-  req.token = req.body.token;
+  const returnData = {};
+  try {
+    const auth = await TokenModel.checkToken(req);
 
-  const auth = await TokenModel.checkToken(req);
-
-  if (auth) {
-    const token = await TokenModel.generateToken(req, userData);
-    req.token = token.token;
-    req.tokenCreatedDate = token.createdDate;
+    if (auth) {
+      const token = await TokenModel.generateToken(req);
+      req.token = token.token;
+      req.tokenCreatedDate = token.createdDate;
+      returnData.status = {
+        code: 200,
+        err: ``,
+        msg: ``
+      };
+    } else {
+      returnData.status = {
+        code: 401,
+        err: `Token has expired`,
+        msg: `Your session has expired. Please login again.`
+      };
+    }
+    return returnData;
+  } catch (err) {
+    console.log(err);
+    returnData.status = {
+      code: 500,
+      err: err,
+      msg: `Internal server error with the authentication of token.`
+    };
+    return returnData;
   }
-
-  return auth;
 };
 
 const AuthenticationService = {

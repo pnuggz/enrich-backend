@@ -7,12 +7,12 @@ const jwtConfig = config.jwt;
 // DUMMY PAYLOAD
 const payload = {};
 
-const generateToken = (req, userData) => {
+const generateToken = (req, userData = null) => {
   const privateKey = jwtConfig.privateKey;
 
   const issuer = jwtConfig.issuer;
   const audience = jwtConfig.audience;
-  const subject = userData.user.email;
+  const subject = userData === null ? req.headers.subject : userData.user.email;
 
   const signOptions = {
     issuer: issuer,
@@ -35,7 +35,7 @@ const checkToken = req => {
 
   const issuer = jwtConfig.issuer;
   const audience = jwtConfig.audience;
-  const subject = req.userData.user.email;
+  const subject = req.headers.subject;
 
   const verifyOptions = {
     issuer: issuer,
