@@ -1,7 +1,7 @@
 import { Connection } from "../loaders/mysql";
 
 const get = async () => {
-  const queryString = "SELECT * FROM USERS";
+  const queryString = "SELECT * FROM users";
   const finalUserData = {};
 
   try {
@@ -12,6 +12,18 @@ const get = async () => {
     return;
   }
 };
+
+const getUserFromToken = async (userId) => {
+  const queryString = `SELECT users.id, users.email, users.username FROM users WHERE users.id = "${userId}"`
+
+  try {
+    let [rows, fields] = await Connection().query(queryString);
+    return rows;
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
 
 const linkPlaidAccount = async (userData, plaidData) => {
   const returnData = {};
@@ -65,6 +77,7 @@ const linkPlaidAccount = async (userData, plaidData) => {
 };
 
 const UserModel = {
+  getUserFromToken: getUserFromToken,
   linkPlaidAccount: linkPlaidAccount
 };
 

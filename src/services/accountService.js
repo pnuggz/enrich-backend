@@ -1,6 +1,8 @@
 import PlaidModel from "../models/plaidModel";
 import AccountModel from "../models/accountModel";
 
+const returnData = {};
+
 const getAccessToken = async req => {
   try {
     const plaidData = await PlaidModel.getAccessToken(req);
@@ -31,8 +33,7 @@ const getAccessToken = async req => {
 };
 
 const getAccounts = async req => {
-  const userId = req.params.id;
-  const returnData = {};
+  const userId = req.user.id;
 
   try {
     const accountsData = await AccountModel.getAll(userId);
@@ -50,9 +51,30 @@ const getAccounts = async req => {
   }
 };
 
+const getAccountById = async req => {
+  const userId = req.user.id;
+  const accountId = req.params.accountId
+
+  try {
+    const accountData = await AccountModel.getAccountById(userId, accountId);
+    returnData.data = accountData.data;
+    returnData.status = accountData.status;
+    return returnData;
+  } catch (err) {
+    console.log(err);
+    returnData.status = {
+      code: 500,
+      error: err,
+      msg: `Internal error with getting the accounts.`
+    };
+    return returnData;
+  }
+}
+
 const AccountService = {
   getAccessToken: getAccessToken,
-  getAccounts: getAccounts
+  getAccounts: getAccounts,
+  getAccountById: getAccountById
 };
 
 export default AccountService;

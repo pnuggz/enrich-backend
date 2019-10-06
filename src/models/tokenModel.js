@@ -4,19 +4,21 @@ import config from "../config/index";
 
 const jwtConfig = config.jwt;
 
-// DUMMY PAYLOAD
-const payload = {};
-
-const generateToken = (req, userData = null) => {
+const generateToken = (req, userData) => {
   const privateKey = jwtConfig.privateKey;
 
   const issuer = jwtConfig.issuer;
   const audience = jwtConfig.audience;
-  const subject = userData === null ? req.headers.subject : userData.user.email;
+  const userId = userData.user.id
+  const email = userData.user.email;
+
+  const payload = {
+    userId: userId
+  };
 
   const signOptions = {
     issuer: issuer,
-    subject: subject,
+    subject: email,
     audience: audience,
     expiresIn: 2100,
     algorithm: "RS256"
@@ -35,11 +37,9 @@ const checkToken = req => {
 
   const issuer = jwtConfig.issuer;
   const audience = jwtConfig.audience;
-  const subject = req.headers.subject;
 
   const verifyOptions = {
     issuer: issuer,
-    subject: subject,
     audience: audience,
     expiresIn: 2100,
     algorithm: ["RS256"]
@@ -47,10 +47,20 @@ const checkToken = req => {
 
   try {
     const verify = jwt.verify(token, publicKey, verifyOptions);
-    return true;
+    return {
+      verified: true,
+      error: ``,
+      userId: verify.userId,
+      email: verify.sub
+    };
   } catch (err) {
     console.log(err);
-    return false;
+    return {
+      verified: false,
+      error: err,
+      userId: ``,
+      email: ``
+    };
   }
 };
 

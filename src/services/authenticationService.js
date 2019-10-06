@@ -1,12 +1,19 @@
 import TokenModel from "../models/tokenModel";
+import UserModel from "../models/userModel"
 
 const authenticate = async req => {
   const returnData = {};
   try {
     const auth = await TokenModel.checkToken(req);
 
-    if (auth) {
-      const token = await TokenModel.generateToken(req);
+    if (auth.verified) {
+      const userId = auth.userId
+      const email = auth.email
+
+      const token = await TokenModel.generateToken(req, { user: { id: userId, email: email } })
+      const user = await UserModel.getUserFromToken(userId)
+
+      req.user = user[0]
       req.token = token.token;
       req.tokenCreatedDate = token.createdDate;
       returnData.status = {

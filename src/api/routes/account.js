@@ -11,10 +11,31 @@ const AccountRouter = app => {
 
   app.use("/account", route);
 
-  route.get("/:id", isAuth, renewToken, async (req, res) => {
+  route.get("/", isAuth, renewToken, async (req, res) => {
     const returnData = req.returnData;
 
     const accountsData = await AccountService.getAccounts(req);
+    const accountsDataStatusCode = accountsData.status.code;
+    if (accountsDataStatusCode === 500) {
+      returnData.status = accountsData.status;
+      res.status(accountsDataStatusCode).json(returnData);
+    }
+
+    returnData.data = {
+      accounts: accountsData.data
+    };
+    returnData.status = {
+      code: 200,
+      err: ``,
+      msg: ``
+    };
+    res.json(returnData);
+  });
+
+  route.get("/:accountId", isAuth, renewToken, async (req, res) => {
+    const returnData = req.returnData;
+
+    const accountsData = await AccountService.getAccountById(req);
     const accountsDataStatusCode = accountsData.status.code;
     if (accountsDataStatusCode === 500) {
       returnData.status = accountsData.status;
