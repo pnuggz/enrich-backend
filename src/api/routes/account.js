@@ -2,7 +2,6 @@ import { Router } from "express";
 
 import middlewares from "./middlewares/index";
 import AccountService from "../../services/accountService";
-import UserService from "../../services/userService";
 
 const AccountRouter = app => {
   const route = Router();
@@ -16,7 +15,7 @@ const AccountRouter = app => {
 
     const accountsData = await AccountService.getAccounts(req);
     const accountsDataStatusCode = accountsData.status.code;
-    if (accountsDataStatusCode === 500) {
+    if (accountsDataStatusCode !== 200) {
       returnData.status = accountsData.status;
       res.status(accountsDataStatusCode).json(returnData);
     }
@@ -37,7 +36,7 @@ const AccountRouter = app => {
 
     const accountsData = await AccountService.getAccountById(req);
     const accountsDataStatusCode = accountsData.status.code;
-    if (accountsDataStatusCode === 500) {
+    if (accountsDataStatusCode !== 200) {
       returnData.status = accountsData.status;
       res.status(accountsDataStatusCode).json(returnData);
     }
@@ -58,26 +57,31 @@ const AccountRouter = app => {
 
     const plaidData = await AccountService.getAccessToken(req);
     const plaidDataStatusCode = plaidData.status.code;
-    if (plaidDataStatusCode === 500) {
+    if (plaidDataStatusCode !== 200) {
       returnData.status = plaidData.status;
       res.status(plaidDataStatusCode).json(returnData);
     }
 
-    const userData = await UserService.linkPlaidAccount(req, plaidData);
-    const userDataStatusCode = userData.status.code;
-    if (userDataStatusCode === 500) {
-      returnData.status = userData.status;
-      res.status(userDataStatusCode).json(returnData);
-      return;
-    }
+    // const userData = await UserService.linkPlaidAccount(req, plaidData);
+    // const userDataStatusCode = userData.status.code;
+    // if (userDataStatusCode !== 200) {
+    //   returnData.status = userData.status;
+    //   res.status(userDataStatusCode).json(returnData);
+    //   return;
+    // }
 
     returnData.data = {
-      user: userData.data.user,
       accounts: userData.data.accounts
     };
-    returnData.status = userData.status;
+    returnData.status = plaidDataStatusCode.status;
     res.json(returnData);
   });
+  
+  route.post("/link", isAuth, renewToken, async (req,res) => {
+    const returnData = req.returnData;
+
+    const linkAccount = await AccountService.LinkAccount(req);
+  })
 };
 
 export default AccountRouter;

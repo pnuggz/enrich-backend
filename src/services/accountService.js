@@ -6,20 +6,29 @@ const returnData = {};
 const getAccessToken = async req => {
   try {
     const plaidData = await PlaidModel.getAccessToken(req);
+    if(plaidData.status.code !== 200) {
+      returnData.status = plaidData.status
+      return returnData
+    }
 
-    const plaidAccountData = await PlaidModel.getAccountDetails(plaidData);
+    const plaidResponseData = plaidData.data
+    const plaidAccountData = await PlaidModel.getAccountDetails(plaidResponseData);
+    if(plaidAccountData.status.code !== 200) {
+      returnData.status = plaidAccountData.status
+      return returnData
+    }
 
-    plaidData.data = {
-      accounts: plaidAccountData.accounts,
+    returnData.data = {
+      accounts: plaidAccountData.data.accounts,
       institution: req.body.data.institution
     };
-    plaidData.status = {
+    returnData.status = {
       code: 200,
       error: ``,
       msg: ``
     };
 
-    return plaidData;
+    return returnData;
   } catch (err) {
     console.log(err);
     return {
@@ -32,13 +41,21 @@ const getAccessToken = async req => {
   }
 };
 
+const linkAccount = async req => {
+  
+}
+
 const getAccounts = async req => {
   const userId = req.user.id;
 
   try {
     const accountsData = await AccountModel.getAll(userId);
-    returnData.data = accountsData.data;
     returnData.status = accountsData.status;
+    if(accountsData.status.code !== 200) {
+      return returnData
+    }
+
+    returnData.data = accountsData.data;
     return returnData;
   } catch (err) {
     console.log(err);
@@ -57,8 +74,12 @@ const getAccountById = async req => {
 
   try {
     const accountData = await AccountModel.getAccountById(userId, accountId);
-    returnData.data = accountData.data;
     returnData.status = accountData.status;
+    if(accountData.status.code !== 200) {
+      return returnData
+    }
+
+    returnData.data = accountData.data;
     return returnData;
   } catch (err) {
     console.log(err);
