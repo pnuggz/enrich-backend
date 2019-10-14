@@ -31,6 +31,25 @@ const AccountRouter = app => {
     res.json(returnData);
   });
 
+  route.post("/", isAuth, renewToken, async (req, res) => {
+    const returnData = req.returnData;
+
+    const accountsData = await AccountService.submitAccounts(req);
+    const accountsDataStatusCode = accountsData.status.code;
+    if (accountsDataStatusCode !== 200) {
+      returnData.status = accountsData.status;
+      res.status(accountsDataStatusCode).json(returnData);
+    }
+
+    returnData.data = accountsData.data;
+    returnData.status = {
+      code: 200,
+      err: ``,
+      msg: ``
+    };
+    res.json(returnData);
+  });
+
   route.get("/:accountId", isAuth, renewToken, async (req, res) => {
     const returnData = req.returnData;
 
@@ -62,26 +81,16 @@ const AccountRouter = app => {
       res.status(plaidDataStatusCode).json(returnData);
     }
 
-    // const userData = await UserService.linkPlaidAccount(req, plaidData);
-    // const userDataStatusCode = userData.status.code;
-    // if (userDataStatusCode !== 200) {
-    //   returnData.status = userData.status;
-    //   res.status(userDataStatusCode).json(returnData);
-    //   return;
-    // }
-
-    returnData.data = {
-      accounts: userData.data.accounts
-    };
-    returnData.status = plaidDataStatusCode.status;
+    returnData.data = plaidData.data;
+    returnData.status = plaidData.status;
     res.json(returnData);
   });
-  
-  route.post("/link", isAuth, renewToken, async (req,res) => {
+
+  route.post("/link", isAuth, renewToken, async (req, res) => {
     const returnData = req.returnData;
 
     const linkAccount = await AccountService.LinkAccount(req);
-  })
+  });
 };
 
 export default AccountRouter;

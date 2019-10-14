@@ -4,7 +4,7 @@ import { Plaid } from "../loaders/plaid";
 const returnData = {};
 
 const getAccessToken = req => {
-  const data = req.body.data;
+  const data = req.body;
   const publicToken = data.publicToken;
 
   return new Promise((res, rej) => {
@@ -15,15 +15,15 @@ const getAccessToken = req => {
           code: 500,
           error: error,
           message: `Error with the Plaid Link State!`
-        }
+        };
         rej(returnData);
       }
       returnData.status = {
         code: 200,
         error: ``,
         message: ``
-      }
-      returnData.data = tokenResponse
+      };
+      returnData.data = tokenResponse;
       res(returnData);
     });
   });
@@ -40,15 +40,15 @@ const getAccountDetails = plaidResponseData => {
           code: 500,
           error: error,
           message: `Error with the Plaid Link Account!`
-        }
+        };
         rej(returnData);
       }
       returnData.status = {
         code: 200,
         error: ``,
         message: ``
-      }
-      returnData.data = result
+      };
+      returnData.data = result;
       res(returnData);
     });
   });
