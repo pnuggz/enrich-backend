@@ -105,7 +105,7 @@ const getAccountsByInstitution = async (userId, institution) => {
       JOIN plaid ON plaid.id = plaid_accounts.plaid_id
       JOIN users_has_plaid ON users_has_plaid.plaid_id = plaid_accounts.plaid_id 
       WHERE users_has_plaid.user_id = ${userId} AND 
-      plaid_accounts.institution_id = "${institutionId}" AND 
+      plaid.institution_id = "${institutionId}" AND 
       plaid.institution = "${institutionName}"`;
     const [rows1, fields1] = await Connection().query(queryString1);
 
