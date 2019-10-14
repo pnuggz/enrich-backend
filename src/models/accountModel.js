@@ -133,12 +133,13 @@ const getAccountsByInstitution = async (userId, institution) => {
 };
 
 const submitAccounts = async (userId, req) => {
-  const selectedAccountsData = req.body.data;
+  const selectedAccountsData = req.body;
   const selectedAccounts = selectedAccountsData.selectedAccounts;
-  const institutionName = selectedAccountsData.institution.name;
-  const institutionId = selectedAccountsData.institution.institution_id;
-  const accessToken = selectedAccountsData.accessToken;
-  const itemId = selectedAccountsData.itemId;
+  const institutionName = selectedAccountsData.plaidData.institution.name;
+  const institutionId =
+    selectedAccountsData.plaidData.institution.institution_id;
+  const accessToken = selectedAccountsData.plaidData.accessToken;
+  const itemId = selectedAccountsData.plaidData.itemId;
 
   try {
     const queryString1 = `
