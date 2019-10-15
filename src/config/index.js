@@ -51,6 +51,10 @@ const config = {
 
   sendgrid: {
     apiKey: process.env.SENDGRID_API_KEY
+  },
+
+  workerpool: {
+    
   }
 };
 

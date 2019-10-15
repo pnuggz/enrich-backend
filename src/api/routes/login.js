@@ -2,6 +2,8 @@ import { Router } from "express";
 
 import LoginService from "../../services/loginService";
 
+import workerJobs from "../../jobs"
+
 const LoginRouter = app => {
   const route = Router();
 
@@ -17,6 +19,11 @@ const LoginRouter = app => {
       res.status(userDataStatusCode).json(returnData);
       return;
     }
+
+    workerJobs.loadTransactions("TEST", (result) => {
+      console.log(result)
+      console.log("Job Complete")
+    })
 
     returnData.data = {
       user: userData.data
