@@ -1,8 +1,15 @@
 import { Connection } from "../loaders/mysql";
+import { authorize, defaultUnauthMsg } from "../library/authorization";
 
-const get = async () => {
-  const queryString = "SELECT * FROM users";
-  const finalUserData = {};
+const returnData = {};
+
+const getUserFromToken = async userId => {
+  const queryString = `
+    SELECT users.id, 
+    users.email, 
+    users.username 
+    FROM users 
+    WHERE users.id = "${userId}"`;
 
   try {
     let [rows, fields] = await Connection().query(queryString);
@@ -12,23 +19,6 @@ const get = async () => {
     return;
   }
 };
-
-const getUserFromToken = async (userId) => {
-  const queryString = `
-    SELECT users.id, 
-    users.email, 
-    users.username 
-    FROM users 
-    WHERE users.id = "${userId}"`
-
-  try {
-    let [rows, fields] = await Connection().query(queryString);
-    return rows;
-  } catch (err) {
-    console.log(err);
-    return;
-  }
-}
 
 const linkPlaidAccount = async (userData, plaidData) => {
   const returnData = {};
@@ -97,9 +87,44 @@ const linkPlaidAccount = async (userData, plaidData) => {
   }
 };
 
+const getPlaidData = async userId => {
+  try {
+    const queryString1 = `
+      SELECT 
+      plaid.id,
+      plaid.access_token,
+      plaid.created_datetime
+      FROM plaid
+      WHERE plaid.user_id = ${userId}`;
+    const [rows1, fields1] = await Connection().query(queryString1);
+
+    if (!(await authorize(rows1, userId))) {
+      returnData.status = defaultUnauthMsg();
+      return returnData;
+    }
+
+    returnData.data = rows1;
+    returnData.status = {
+      code: 200,
+      error: ``,
+      msg: ``
+    };
+    return returnData;
+  } catch (err) {
+    console.log(err);
+    returnData.status = {
+      code: 500,
+      error: err,
+      msg: `Error with getting the accounts from the db.`
+    };
+    return returnData;
+  }
+};
+
 const UserModel = {
   getUserFromToken: getUserFromToken,
-  linkPlaidAccount: linkPlaidAccount
+  linkPlaidAccount: linkPlaidAccount,
+  getPlaidData: getPlaidData
 };
 
 export default UserModel;

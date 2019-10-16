@@ -9,6 +9,7 @@
   "author": "Ryan Nugraha",
   "license": "ISC",
   "dependencies": {
+    "@babel/core": "^7.6.4",
     "@sendgrid/mail": "^6.4.0",
     "babel": "^6.23.0",
     "bcryptjs": "^2.4.3",
@@ -26,6 +27,7 @@
     "nodemailer": "^6.3.0",
     "plaid": "^4.3.0",
     "string-hash": "^1.1.3",
+    "webpack": "^4.41.2",
     "winston": "^3.2.1",
     "workerpool": "^5.0.1"
   },

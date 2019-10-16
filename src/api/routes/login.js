@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import LoginService from "../../services/loginService";
 
-import workerJobs from "../../jobs"
+import workerJobs from "../../jobs";
 
 const LoginRouter = app => {
   const route = Router();
@@ -20,10 +20,7 @@ const LoginRouter = app => {
       return;
     }
 
-    workerJobs.loadTransactions("TEST", (result) => {
-      console.log(result)
-      console.log("Job Complete")
-    })
+    workerJobs.loadTransactions(userData.data);
 
     returnData.data = {
       user: userData.data

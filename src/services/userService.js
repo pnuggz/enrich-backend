@@ -1,5 +1,7 @@
 import UserModel from "../models/userModel";
 
+const returnData = {};
+
 const linkPlaidAccount = async (req, plaidData) => {
   const returnData = {};
   const data = req.body.data;
@@ -30,8 +32,29 @@ const linkPlaidAccount = async (req, plaidData) => {
   }
 };
 
+const getPlaidData = async userId => {
+  try {
+    const plaidData = await UserModel.getPlaidData(userId);
+    returnData.status = plaidData.status;
+    if (plaidData.status.code !== 200) {
+      return returnData;
+    }
+
+    returnData.data = plaidData.data;
+    return returnData;
+  } catch (err) {
+    console.log(err);
+    returnData.status = {
+      code: 500,
+      error: err,
+      msg: `Internal error with getting the accounts.`
+    };
+    return returnData;
+  }
+};
+
 const UserService = {
-  linkPlaidAccount: linkPlaidAccount
+  getPlaidData: getPlaidData
 };
 
 export default UserService;
