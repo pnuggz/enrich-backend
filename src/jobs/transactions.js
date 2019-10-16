@@ -246,6 +246,80 @@ const loadTransactions = userData => {
     });
   };
 
+  const calculateMonthly = () => {
+    const getMonthlyTransactions = (
+        date1 = null,
+        date2 = null,
+        offset = 0
+      ) => {
+        const startDate =
+          date1 !== null
+            ? dateFns.format(date1, "yyyy-MM-dd")
+            : dateFns.format(dateFns.startOfMonth(new Date()), "yyyy-MM-dd");
+        const endDate =
+          date2 !== null
+            ? dateFns.format(date2, "yyyy-MM-dd")
+            : dateFns.format(new Date(), "yyyy-MM-dd");
+            
+        return new Promise((res, rej) => {
+          const queryString1 = `
+            SELECT
+            plaid.user_id,
+            plaid_accounts.id as plaid_account_id,
+            SUM(plaid_accounts_transactions.amount) AS plaid_account_monthly_sum,
+            tracking_accounts.id AS tracking_account_id
+            FROM plaid
+            JOIN plaid_accounts ON plaid_accounts.plaid_id = plaid.id
+            JOIN plaid_accounts_transactions ON plaid_accounts_transactions.account_id = plaid_accounts.id
+            JOIN tracking_accounts ON tracking_accounts.plaid_account_id = plaid_accounts.id
+            WHERE plaid.user_id = ${userId} AND
+            plaid_accounts_transactions.transaction_date BETWEEN '${startDate}' AND '${endDate}'
+            GROUP BY plaid_accounts.id
+            `;
+          connection.query(queryString1, (err, results, fields) => {
+            if (err !== null) {
+              rej(err);
+            }
+            res(results);
+          });
+        });
+    };
+
+    const updateTrackingBalance = (trackingAccountId, balance, month) => {
+      return new Promise((res, rej) => {
+        const queryString1 = `
+          INSERT INTO tracking_accounts_balance (tracking_account_id, balance, month)
+          VALUES (${trackingAccountId}, ${balance}, ${month})
+          ON DUPLICATE KEY UPDATE balance='${balance}'
+          `;
+        connection.query(queryString1, (err, results, fields) => {
+          if (err !== null) {
+            rej(err);
+          }
+          res(results);
+        });
+      });
+    }
+
+    getMonthlyTransactions()
+      .then(response => {
+        const month = dateFns.format(new Date(), "M");
+        const promisesArray = response.reduce((array,row) => {
+          array.push(updateTrackingBalance(row.tracking_account_id, row.plaid_account_monthly_sum, month))
+          return array
+        },[])
+        
+        Promise.all(promisesArray)
+          .then(response => {
+            console.log(response)
+          })
+      })
+      .catch(error => {
+        console.log(error)
+      })
+
+  }
+
   plaidData()
     .then(response => {
       return getTransactions(response);
@@ -254,7 +328,7 @@ const loadTransactions = userData => {
       return saveTransactions(response.plaidData, response.result);
     })
     .then(response => {
-      // console.log(response);
+      return calculateMonthly();
     })
     .catch(error => {
       console.log(error);
