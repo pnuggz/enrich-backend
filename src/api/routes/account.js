@@ -2,6 +2,10 @@ import { Router } from "express";
 
 import middlewares from "./middlewares/index";
 import AccountService from "../../services/accountService";
+import AccountTrackingService from "../../services/accountTrackingService";
+import UserService from "../../services/userService";
+
+import workerJobs from "../../jobs";
 
 const AccountRouter = app => {
   const route = Router();
@@ -40,6 +44,20 @@ const AccountRouter = app => {
       returnData.status = accountsData.status;
       res.status(accountsDataStatusCode).json(returnData);
     }
+
+    const accountTrackingData = await AccountTrackingService.createAccountTracking(
+      req,
+      accountsData.data
+    );
+    if (accountTrackingData.status.code !== 200) {
+      returnData.status = accountTrackingData.status;
+      res.status(accountTrackingData.status.code).json(returnData);
+    }
+
+    const userData = {
+      user: req.user
+    };
+    workerJobs.loadTransactions(userData);
 
     returnData.data = accountsData.data;
     returnData.status = {

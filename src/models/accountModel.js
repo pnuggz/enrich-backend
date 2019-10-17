@@ -169,7 +169,7 @@ const submitAccounts = async (userId, req) => {
       const balances = account.balances;
       const queryString3 = `
         INSERT INTO plaid_accounts (plaid_id, account_id, name, official_name, type, subtype, mask) 
-        VALUES (${plaidId}, "${account.account_id}", "${account.name}", "${account.official_name}", "${account.type}", "${account.subtype}", ${account.mask})`;
+        VALUES (${plaidId}, "${account.account_id}", "${account.name}", "${account.official_name}", "${account.type}", "${account.subtype}", "${account.mask}")`;
       const [rows3, fields3] = await Connection().query(queryString3);
       const accountId = rows3.insertId;
 
@@ -181,6 +181,7 @@ const submitAccounts = async (userId, req) => {
 
     const queryString5 = `
       SELECT plaid_accounts.id, 
+      plaid_accounts.account_id as plaid_account_id,
       plaid_accounts.plaid_id, 
       plaid_accounts.name, 
       plaid_accounts.official_name, 

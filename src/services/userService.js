@@ -53,6 +53,10 @@ const getPlaidData = async userId => {
   }
 };
 
+const getUserData = async req => {
+  const userId = req.user.id;
+};
+
 const UserService = {
   getPlaidData: getPlaidData
 };
