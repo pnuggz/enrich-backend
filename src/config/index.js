@@ -1,5 +1,6 @@
-import dotenv from "dotenv";
-import fs from "fs";
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 
 // Set the NODE_ENV to 'development' by default
 process.env.NODE_ENV = process.env.NODE_ENV || "development";
@@ -43,8 +44,8 @@ const config = {
   },
 
   jwt: {
-    publicKey: fs.readFileSync("./public.key", "utf8"),
-    privateKey: fs.readFileSync("./private.key", "utf8"),
+    publicKey: fs.readFileSync(path.join(process.cwd(), 'certs/jwt_public.key'), 'utf8'),
+    privateKey: fs.readFileSync(path.join(process.cwd(), 'certs/jwt_private.pem'), 'utf8'),
     issuer: process.env.JWT_ISSUER,
     audience: process.env.JWT_AUDIENCE
   },
