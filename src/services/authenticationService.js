@@ -40,6 +40,10 @@ const authenticate = async req => {
   }
 };
 
+const checkOrCreateBasiqUser = async req => {
+  
+}
+
 const AuthenticationService = {
   authenticate: authenticate
 };

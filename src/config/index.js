@@ -53,4 +53,4 @@ const config = {
   workerpool: {}
 };
 
-module.exports = config;
+export default config;

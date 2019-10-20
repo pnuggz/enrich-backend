@@ -6,6 +6,7 @@ const isAuth = middlewares.isAuth;
 const renewToken = middlewares.renewToken;
 
 import InstitutionService from "../../services/institutionService.js"
+import UserService from "../../services/userService.js"
 
 import workerJobs from "../../jobs"
 
@@ -47,6 +48,28 @@ const InstitutionRouter = app => {
 
     returnData.data = {
       institutions: institutionsResponse.data
+    };
+    returnData.status = {
+      code: 200,
+      err: ``,
+      msg: ``
+    };
+    res.json(returnData);
+  })
+
+  route.post("/user", isAuth, renewToken, basiqAuth, async (req, res) => {
+    const returnData = req.returnData
+
+    const createBasiqUserResponse = await UserService.checkOrCreateBasiqUser(req)
+
+    // const institutionsResponse = await InstitutionService.getInstitutionsByUser(req);
+    // if (institutionsResponse.status.code !== 200) {
+    //   returnData.status = institutionsResponse.status;
+    //   res.status(institutionsResponse.status.code).json(returnData);
+    // }
+
+    returnData.data = {
+
     };
     returnData.status = {
       code: 200,
