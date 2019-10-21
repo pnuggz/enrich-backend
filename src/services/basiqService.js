@@ -25,13 +25,17 @@ const dataFetch = (url, fetchMethod, headers, body = null) => {
         return basiqResponse.json();
       })
       .then(basiqData => {
-        returnData.status = 200;
+        returnData.status = {
+          code: 200
+        }
         returnData.data = basiqData;
         res(returnData);
       })
       .catch(err => {
         console.log(err);
-        returnData.status = err.status;
+        returnData.status = {
+          code: err.status
+        };
         rej(returnData);
       });
   });

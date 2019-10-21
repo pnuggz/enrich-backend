@@ -11,7 +11,8 @@ const authenticate = async req => {
       const email = auth.email
 
       const token = await TokenModel.generateToken(req, { user: { id: userId, email: email } })
-      const user = await UserModel.getUserFromToken(userId)
+      const userResponse = await UserModel.getUserFromToken(userId)
+      const user = userResponse.data[0]
 
       req.user = user
       req.token = token.token;
@@ -39,10 +40,6 @@ const authenticate = async req => {
     return returnData;
   }
 };
-
-const checkOrCreateBasiqUser = async req => {
-  
-}
 
 const AuthenticationService = {
   authenticate: authenticate

@@ -1,6 +1,8 @@
 import PasswordEncryption from "../library/passwordEncyption"
 
-import UserModel from "../models/userModel.js"
+import BasiqService from "../services/basiqService"
+
+import UserModel from "../models/userModel"
 
 const returnData = {};
 
@@ -66,8 +68,63 @@ const signupUser = async req => {
   }
 }
 
+const checkOrCreateBasiqUser = async req => {
+  const userId = req.user.id
+
+  const basiqIdResponse = await UserModel.getUserBasiqAccount(userId)
+  if(basiqIdResponse.status.code !== 200) {
+    returnData.status = basiqIdResponse.status
+    return returnData
+  }
+
+  if(basiqIdResponse.data.length === 1) {
+    returnData.status = basiqIdResponse.status
+    returnData.data = basiqIdResponse.data
+    return returnData
+  }
+
+  const userResponse = await UserModel.getUser(userId)
+  if(userResponse.status.code !== 200) {
+    returnData.status = userResponse.status
+    return returnData
+  }
+
+  const userEmail = userResponse.data[0].email
+  const createdBasiqIdResponse = await BasiqService.createUser(req, userEmail)
+  if(createdBasiqIdResponse.status.code !== 200) {
+    returnData.status = createdBasiqIdResponse.status
+    return returnData
+  }
+
+  const basiqId = createdBasiqIdResponse.data.id
+  const linkBasiqAccountResponse = await UserModel.linkUserBasiqAccount(userId, basiqId)
+  if(linkBasiqAccountResponse !== 200) {
+    returnData.status = linkBasiqAccountResponse.status
+    return returnData
+  }
+
+  const newBasiqIdResponse = await UserModel.getUserBasiqAccount(userId)
+  if(newBasiqIdResponse.status.code !== 200) {
+    returnData.status = newBasiqIdResponse.status
+    return returnData
+  }
+
+  returnData.status = {
+    code: 200,
+    error: ``,
+    message: ``
+  }
+  returnData.data = newBasiqIdResponse.data
+  return returnData
+}
+
+const linkUserInstitutionResponse = async req => {
+  
+}
+
 const UserService = {
-  signupUser: signupUser
+  signupUser: signupUser,
+  checkOrCreateBasiqUser: checkOrCreateBasiqUser
 };
 
 export default UserService;

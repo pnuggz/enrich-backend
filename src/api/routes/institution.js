@@ -61,7 +61,17 @@ const InstitutionRouter = app => {
     const returnData = req.returnData
 
     const createBasiqUserResponse = await UserService.checkOrCreateBasiqUser(req)
+    if(createBasiqUserResponse.status.code !== 200) {
+      returnData.status = createBasiqUserResponse.status
+      return returnData
+    }
 
+    const linkUserInstitutionResponse = await UserService.linkUserInstitution(req)
+    if(linkUserInstitutionResponse.status.code !== 200) {
+      returnData.status = linkUserInstitutionResponse.status
+      return returnData
+    }
+    console.log(linkUserInstitutionResponse)
     // const institutionsResponse = await InstitutionService.getInstitutionsByUser(req);
     // if (institutionsResponse.status.code !== 200) {
     //   returnData.status = institutionsResponse.status;

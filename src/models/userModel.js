@@ -212,13 +212,76 @@ const getUserFromToken = async userId => {
   }
 }
 
+const getUserBasiqAccount = async userId => {
+  const queryString1 = `
+    SELECT users_basiq.user_id, 
+    users_basiq.user_id as userId ,
+    users_basiq.basiq_id
+    FROM users_basiq 
+    WHERE users_basiq.user_id = ?`;
+
+  try {
+    const [results, fields] = await Connection.query(queryString1, [userId])
+
+    if (!Authorization.authorize(results, userId)) {
+      returnData.status = Authorization.defaultUnauthMsg();
+      return (returnData);
+    }
+
+    returnData.status = {
+      code: 200,
+      error: ``,
+      message: ``
+    };
+    returnData.data = results;
+    return (returnData);
+  } catch (err) {
+    console.log(err)
+    returnData.status = {
+      code: 500,
+      error: err,
+      message: `Internal server error.`
+    };
+    return (returnData);
+  }
+}
+
+const linkUserBasiqAccount = async (userId, basiqId) => {
+  const queryString1 = `
+    INSERT INTO users_basiq (user_id, basiq_id) 
+    VALUES (?, ?)
+    ON DUPLICATE KEY UPDATE user_id=?
+  `;
+
+  try {
+    const [results, fields] = await Connection.query(queryString1, [userId, basiqId, userId])
+    returnData.status = {
+      code: 200,
+      error: ``,
+      message: ``
+    };
+    returnData.data = results;
+    return (returnData);
+  } catch (err) {
+    console.log(err)
+    returnData.status = {
+      code: 500,
+      error: err,
+      message: `Internal server error.`
+    };
+    return (returnData);
+  }
+}
+
 const UserModel = {
   getUserFromToken: getUserFromToken,
   createUser: createUser,
   getUser: getUser,
   getUserByLoginIncPassword: getUserByLoginIncPassword,
   createVerificationToken: createVerificationToken,
-  getVerificationTokenByUser: getVerificationTokenByUser
+  getVerificationTokenByUser: getVerificationTokenByUser,
+  getUserBasiqAccount: getUserBasiqAccount,
+  linkUserBasiqAccount: linkUserBasiqAccount
 };
 
 export default UserModel;
