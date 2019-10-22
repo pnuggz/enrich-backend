@@ -1,5 +1,5 @@
 import express from "express";
-import socketIo from "socket.io";
+// import socketIo from "socket.io";
 
 import Logger from "./loaders/logger";
 import config from "./config";
@@ -13,9 +13,7 @@ const startServer = () => {
 
   serverLoader({ expressApp: app });
 
-  // const server = https.createServer({ key: config.server.key, cert: config.server.cert }, app);
   const server = https.Server(app);
-  const io = socketIo(server)
 
   server.listen(config.port, err => {
     if (err) {
@@ -30,17 +28,19 @@ const startServer = () => {
     `);
   });
 
-  webSocketLoader({ websocket: io })
-  io.on('connection', function (socket) {
-    console.log('Client connected to / namespace.');
+    // const server = https.createServer({ key: config.server.key, cert: config.server.cert }, app);
+    // const io = socketIo(server)
+    // webSocketLoader({ websocket: io })
+    // io.on('connection', function (socket) {
+    //   console.log('Client connected to / namespace.');
 
-    socket.emit("news", { test: "TEST" })
+    //   socket.emit("news", { test: "TEST" })
 
-    // Disconnect listener
-    socket.on('disconnect', function () {
-      console.log('Client disconnected.');
-    });
-  });
+    //   // Disconnect listener
+    //   socket.on('disconnect', function () {
+    //     console.log('Client disconnected.');
+    //   });
+    // });
 };
 
 startServer();
