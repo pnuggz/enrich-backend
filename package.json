@@ -25,6 +25,7 @@
     "node-fetch": "^2.6.0",
     "nodemailer": "^6.3.0",
     "plaid": "^4.3.0",
+    "socket.io": "^2.3.0",
     "string-hash": "^1.1.3",
     "webpack": "^4.41.2",
     "winston": "^3.2.1",
@@ -40,9 +41,5 @@
     "@babel/register": "^7.6.2",
     "@babel/runtime": "^7.6.3",
     "nodemon": "^1.19.4"
-  },
-  "optionalDependencies": {
-    "bufferutil": "^4.0.1",
-    "utf-8-validate": "^5.0.2"
   }
 }

@@ -1,9 +1,13 @@
 import expressLoader from "./express";
+import socketIoLoader from "./socketIo";
 import Logger from "./logger";
 
-const serverLoader = async ({ expressApp }) => {
+export const serverLoader = async ({ expressApp }) => {
   await expressLoader({ app: expressApp });
   Logger.info("✌️ Express loaded");
 };
 
-export default serverLoader;
+export const webSocketLoader = async ({ websocket }) => {
+  await socketIoLoader({ io: websocket })
+  Logger.info("✌️ WebSocket loaded");
+}

@@ -46,6 +46,11 @@ const config = {
     audience: process.env.JWT_AUDIENCE
   },
 
+  server: {
+    key: fs.readFileSync(path.join(process.cwd(), 'certs/server_key.pem'), 'utf8'),
+    cert: fs.readFileSync(path.join(process.cwd(), 'certs/server_cert.crt'), 'utf8'),
+  },
+
   sendgrid: {
     apiKey: process.env.SENDGRID_API_KEY
   },
