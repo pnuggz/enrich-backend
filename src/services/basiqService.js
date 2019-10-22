@@ -19,15 +19,18 @@ const dataFetch = (url, fetchMethod, headers, body = null) => {
     options.body = JSON.stringify(body);
   }
 
+  const returnStatus = {
+    code: null
+  }
+
   return new Promise((res, rej) => {
     fetch(url, options)
       .then(basiqResponse => {
+        returnStatus.code = basiqResponse.status
         return basiqResponse.json();
       })
       .then(basiqData => {
-        returnData.status = {
-          code: 200
-        }
+        returnData.status = returnStatus
         returnData.data = basiqData;
         res(returnData);
       })

@@ -4,8 +4,6 @@ import Logger from "./loaders/logger";
 import config from "./config";
 import Loaders from "./loaders";
 
-import { Connection } from "./loaders/mysql";
-
 const startServer = () => {
   const app = express();
 

@@ -3,6 +3,7 @@ import PasswordEncryption from "../library/passwordEncyption"
 import BasiqService from "../services/basiqService"
 
 import UserModel from "../models/userModel"
+import JobModel from "../models/jobModel"
 
 const returnData = {};
 
@@ -72,39 +73,39 @@ const checkOrCreateBasiqUser = async req => {
   const userId = req.user.id
 
   const basiqIdResponse = await UserModel.getUserBasiqAccount(userId)
-  if(basiqIdResponse.status.code !== 200) {
+  if (basiqIdResponse.status.code !== 200) {
     returnData.status = basiqIdResponse.status
     return returnData
   }
 
-  if(basiqIdResponse.data.length === 1) {
+  if (basiqIdResponse.data.length === 1) {
     returnData.status = basiqIdResponse.status
     returnData.data = basiqIdResponse.data
     return returnData
   }
 
   const userResponse = await UserModel.getUser(userId)
-  if(userResponse.status.code !== 200) {
+  if (userResponse.status.code !== 200) {
     returnData.status = userResponse.status
     return returnData
   }
 
   const userEmail = userResponse.data[0].email
   const createdBasiqIdResponse = await BasiqService.createUser(req, userEmail)
-  if(createdBasiqIdResponse.status.code !== 200) {
+  if (createdBasiqIdResponse.status.code !== 201) {
     returnData.status = createdBasiqIdResponse.status
     return returnData
   }
 
   const basiqId = createdBasiqIdResponse.data.id
   const linkBasiqAccountResponse = await UserModel.linkUserBasiqAccount(userId, basiqId)
-  if(linkBasiqAccountResponse !== 200) {
+  if (linkBasiqAccountResponse !== 200) {
     returnData.status = linkBasiqAccountResponse.status
     return returnData
   }
 
   const newBasiqIdResponse = await UserModel.getUserBasiqAccount(userId)
-  if(newBasiqIdResponse.status.code !== 200) {
+  if (newBasiqIdResponse.status.code !== 200) {
     returnData.status = newBasiqIdResponse.status
     return returnData
   }
@@ -118,13 +119,50 @@ const checkOrCreateBasiqUser = async req => {
   return returnData
 }
 
-const linkUserInstitutionResponse = async req => {
-  
+const linkUserInstitution = async (req, userBasiqData) => {
+  const userId = req.user.id
+  const bodyData = req.body
+
+  const basiqId = userBasiqData[0].basiq_id
+  const institutionId = bodyData.institution.value
+  const loginData = {
+    login: bodyData.login.value,
+    password: bodyData.password.value
+  }
+
+  const createBasiqConnectionResponse = await BasiqService.createUserConnection(req, basiqId, institutionId, loginData)
+  if (createBasiqConnectionResponse.status.code !== 202) {
+    returnData.status = createBasiqConnectionResponse.status
+    return returnData
+  }
+
+  if (createBasiqConnectionResponse.data.type !== "job") {
+    returnData.status = createBasiqConnectionResponse.status
+    returnData.data = createBasiqConnectionResponse.data
+    return returnData
+  }
+
+  // TEMPORARILLY SAVE TO DB - EVENTUALLY SAVE TO CACHE
+  const basiqJobId = createBasiqConnectionResponse.data.id
+  const saveBasiqJobResponse = await JobModel.saveBasiqConnectionJob(userId, basiqJobId, institutionId)
+  if (saveBasiqJobResponse.status.code !== 200) {
+    returnData.status = saveBasiqJobResponse.status
+    return returnData
+  }
+
+  returnData.status = {
+    code: 202,
+    error: ``,
+    message: ``
+  }
+  delete returnData.data
+  return returnData
 }
 
 const UserService = {
   signupUser: signupUser,
-  checkOrCreateBasiqUser: checkOrCreateBasiqUser
+  checkOrCreateBasiqUser: checkOrCreateBasiqUser,
+  linkUserInstitution: linkUserInstitution
 };
 
 export default UserService;
