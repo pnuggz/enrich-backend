@@ -7,6 +7,7 @@ import login from "./routes/login"
 import account from "./routes/account"
 import user from "./routes/user"
 import institution from "./routes/institution"
+import notification from "./routes/notification"
 
 import test from "./routes/test.js"
 
@@ -21,6 +22,8 @@ const routes = () => {
   // user(app);
   account(app);
   institution(app);
+  notification(app)
+
   test(app);
 
   return app;
