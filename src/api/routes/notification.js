@@ -30,6 +30,26 @@ const NotificationRouter = app => {
     };
     res.json(returnData);
   })
+
+  route.post("/status", isAuth, renewToken, async (req, res) => {
+    const returnData = req.returnData
+
+    console.log(req.body)
+
+    // const notificationsResponse = await NotificationService.getNotifications(req)
+    // if (notificationsResponse.status.code !== 200) {
+    //   returnData.status = notificationsResponse.status
+    //   return returnData
+    // }
+
+    // returnData.data = 
+    returnData.status = {
+      code: 200,
+      err: ``,
+      msg: ``
+    };
+    res.json(returnData);
+  })
 }
 
 export default NotificationRouter
