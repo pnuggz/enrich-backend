@@ -12,11 +12,9 @@ const cronJobs = () => {
     running = true
 
     const callback = (finish) => {
-      console.log(finish)
       running = finish
     }
 
-    console.log("NEW LOOP")
     await autoWorkers(callback)
   });
 

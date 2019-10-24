@@ -3,7 +3,6 @@ const autoJobs = async () => {
   const basiqJobChecker = require(path.join(__dirname, "../../../src/autoJobs/basiqJobChecker.js"))
 
   const basiqJobCheckerResponse = await basiqJobChecker()
-  console.log("END OF LOOP")
   return false
 }
 

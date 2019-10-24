@@ -28,7 +28,6 @@
     "plaid": "^4.3.0",
     "socket.io": "^2.3.0",
     "string-hash": "^1.1.3",
-    "threads": "^1.0.0-beta.6",
     "webpack": "^4.41.2",
     "winston": "^3.2.1",
     "workerpool": "^5.0.1"

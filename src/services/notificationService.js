@@ -1,4 +1,6 @@
-import NotificationModel from "../models/notificationModel"
+const path = require("path")
+
+const NotificationModel = require(path.join(__dirname, "../models/notificationModel"))
 
 const returnData = {}
 
@@ -40,8 +42,40 @@ const getNotifications = async (req) => {
   }
 };
 
-const NotificationService = {
-  getNotifications: getNotifications
+const createErrorNotification = async (basiqJob) => {
+  const userId = basiqJob.user_id
+  const url = "/institution/"
+  const notificationTextId = 2
+
+  const createNotificationResponse = await NotificationModel.createNotificationBySystem(userId, notificationTextId, url)
+  if(createNotificationResponse.status.code !== 200) {
+    returnData.status = createNotificationResponse.status
+    return returnData
+  }
+
+  returnData.status = createNotificationResponse.status
+  return returnData
 }
 
-export default NotificationService
+const createSuccessNotification = async (basiqJob) => {
+  const userId = basiqJob.user_id
+  const url = "/institution/"
+  const notificationTextId = 3
+
+  const createNotificationResponse = await NotificationModel.createNotificationBySystem(userId, notificationTextId, url)
+  if(createNotificationResponse.status.code !== 200) {
+    returnData.status = createNotificationResponse.status
+    return returnData
+  }
+
+  returnData.status = createNotificationResponse.status
+  return returnData
+}
+
+const NotificationService = {
+  getNotifications: getNotifications,
+  createErrorNotification: createErrorNotification,
+  createSuccessNotification: createSuccessNotification
+}
+
+module.exports = NotificationService

@@ -5,6 +5,7 @@ const basiqConfig = config.basiq
 
 const JobModel = require(path.join(__dirname, "../models/jobModel.js"))
 const BasiqService = require(path.join(__dirname, "../services/basiqService.js"))
+const NotificationService = require(path.join(__dirname, "../services/notificationService.js"))
 
 const req = {}
 
@@ -12,6 +13,7 @@ const checkJobsAndCreateNotification = async () => {
   const basiqAccessToken = basiqConfig.accessToken
   const getBasiqTokenResponse = await BasiqService.getToken(basiqAccessToken)
   if (getBasiqTokenResponse.status.code !== 200) {
+    console.log(getBasiqTokenResponse.status)
     return
   }
   req.basiq = {
@@ -20,6 +22,7 @@ const checkJobsAndCreateNotification = async () => {
 
   const basiqJobsResponse = await JobModel.getBasiqJobsAll()
   if (basiqJobsResponse.status.code !== 200) {
+    console.log(basiqJobsResponse.status)
     return
   }
 
@@ -29,13 +32,21 @@ const checkJobsAndCreateNotification = async () => {
     const basiqJob = basiqJobs[i]
     const type = basiqJob.type
 
+    let notificationResponse;
     if (type === "USER_CONNECTION_NEW") {
-      const userConnectionJobResponse = checkNewUserConnection(basiqJob)
+      const userConnectionJobResponse = await checkNewUserConnection(basiqJob)
       if (userConnectionJobResponse.status.code === 500) {
-        const createErrorNotificationResponse = await createErrorNotificationResponse(basiqJob)
-        return
+        notificationResponse = await createErrorNotification(basiqJob)
       } else if (userConnectionJobResponse.status.code === 200) {
-        const createSuccessNotificationResponse = await createSuccessNotificationResponse(basiqJob)
+        notificationResponse = await createSuccessNotification(basiqJob)
+      }
+    }
+
+    if(notificationResponse.status.code === 200) {
+      const jobUpdateResponse = await JobModel.updateBasiqJobByJobId(basiqJob.job_id)
+      if (jobUpdateResponse.status.code !== 200) {
+        console.log(jobUpdateResponse.status)
+        return
       }
     }
   }
@@ -49,6 +60,7 @@ const checkNewUserConnection = async (basiqJob) => {
 
   const jobResponse = await BasiqService.getJobByJobId(req, basiqJobId)
   if (jobResponse.status.code !== 200) {
+    console.log(jobResponse.status)
     return
   }
 
@@ -80,7 +92,7 @@ const checkNewUserConnection = async (basiqJob) => {
       error: flags.errors,
       message: `Try again to user.`
     }
-    return
+    return returnData
   }
 
   if (flags.success !== jobSteps.length) {
@@ -89,7 +101,7 @@ const checkNewUserConnection = async (basiqJob) => {
       error: ``,
       message: ``
     }
-    return
+    return returnData
   }
 
   returnData.status = {
@@ -97,12 +109,29 @@ const checkNewUserConnection = async (basiqJob) => {
     error: ``,
     message: ``
   }
-  return
+  return returnData
 }
 
-const createErrorNotificationResponse = async (basiqJob) => {
-
+const createErrorNotification = async (basiqJob) => {
+  const createNotificationRespose = await NotificationService.createErrorNotification(basiqJob)
+  if (createNotificationRespose.status.code !== 200) {
+    console.log(createNotificationRespose.status)
+    return createNotificationRespose
+  }
+  createNotificationRespose.status.code = 200
+  return createNotificationRespose
 }
+
+const createSuccessNotification = async (basiqJob) => {
+  const createNotificationRespose = await NotificationService.createSuccessNotification(basiqJob)
+  if (createNotificationRespose.status.code !== 200) {
+    console.log(createNotificationRespose.status)
+    return createNotificationRespose
+  }
+  createNotificationRespose.status.code = 200
+  return createNotificationRespose
+}
+
 
 const BasiqJobsService = {
   checkJobsAndCreateNotification: checkJobsAndCreateNotification

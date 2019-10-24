@@ -1,6 +1,8 @@
-import Connection from "../loaders/mysql.js"
+const path = require("path")
 
-import Authorization from "../library/authorization"
+const Connection = require(path.join(__dirname, "../loaders/mysql.js"))
+
+const Authorization = require(path.join(__dirname, "../library/authorization"))
 
 const returnData = {};
 
@@ -45,8 +47,36 @@ const getNotificationsByUser = async (userId) => {
   }
 };
 
-const NotificationModel = {
-  getNotificationsByUser: getNotificationsByUser
+const createNotificationBySystem = async (userId, notificationTextId, url) => {
+  const queryString1 = `
+  INSERT INTO notifications (user_id, notification_text_id, url) 
+  VALUES (?, ?, ?)
+  ON DUPLICATE KEY UPDATE user_id = ?
+`;
+
+try {
+  const [results, fields] = await Connection.query(queryString1, [userId, notificationTextId, url, userId])
+  returnData.status = {
+    code: 200,
+    error: ``,
+    message: ``
+  };
+  returnData.data = results;
+  return (returnData);
+} catch (err) {
+  console.log(err)
+  returnData.status = {
+    code: 500,
+    error: err,
+    message: `Internal server error.`
+  };
+  return (returnData);
+}
 }
 
-export default NotificationModel
+const NotificationModel = {
+  getNotificationsByUser: getNotificationsByUser,
+  createNotificationBySystem: createNotificationBySystem
+}
+
+module.exports = NotificationModel

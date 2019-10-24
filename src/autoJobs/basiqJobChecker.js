@@ -5,7 +5,6 @@ const basiqJobChecker = () => {
   return new Promise(async (res) => {
     const response = await BasiqJobsService.checkJobsAndCreateNotification()
     if (response != undefined) {
-      console.log(response)
       setTimeout(() => {
         res(false)
       }, 3000)
