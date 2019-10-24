@@ -1,4 +1,5 @@
-import InstitutionModel from "../models/institutionModel.js"
+const path = require("path")
+const InstitutionModel = require(path.join(__dirname, "../models/institutionModel.js"))
 
 const returnData = {}
 
@@ -56,4 +57,4 @@ const InstitutionService = {
   getInstitutionsByUser: getInstitutionsByUser
 };
 
-export default InstitutionService;
+module.exports = InstitutionService;

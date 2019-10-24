@@ -1,6 +1,7 @@
-import mysql2 from "mysql2/promise"
+const path = require("path")
+const mysql2 = require("mysql2/promise")
 
-import config from "../config/index.js"
+const config = require(path.join(__dirname, "../config/index.js"))
 
 const mysql2Config = config.mysql;
 
@@ -14,4 +15,4 @@ const Connection = mysql2.createPool({
   queueLimit: 0
 });
 
-export default Connection;
+module.exports = Connection;

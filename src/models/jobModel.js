@@ -1,4 +1,6 @@
-import Connection from "../loaders/mysql"
+const path = require("path")
+
+const Connection = require(path.join(__dirname, "../loaders/mysql"))
 
 const returnData = {}
 
@@ -29,8 +31,38 @@ const saveBasiqConnectionJob = async (userId, basiqJobId, institutionId) => {
   }
 }
 
+const getBasiqJobsAll = async () => {
+  const queryString1 = `
+    SELECT 
+    jobs_basiq.*,
+    jobs_basiq_type.type
+    FROM jobs_basiq
+    JOIN jobs_basiq_type ON jobs_basiq_type.jobs_basiq_id = jobs_basiq.type
+  `;
+
+  try {
+    const [results, fields] = await Connection.query(queryString1)
+    returnData.status = {
+      code: 200,
+      error: ``,
+      message: ``
+    };
+    returnData.data = results;
+    return (returnData);
+  } catch (err) {
+    console.log(err)
+    returnData.status = {
+      code: 500,
+      error: err,
+      message: `Internal server error.`
+    };
+    return (returnData);
+  }
+}
+
 const JobModel = {
-  saveBasiqConnectionJob: saveBasiqConnectionJob
+  saveBasiqConnectionJob: saveBasiqConnectionJob,
+  getBasiqJobsAll: getBasiqJobsAll
 };
 
-export default JobModel
+module.exports = JobModel

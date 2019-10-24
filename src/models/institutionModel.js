@@ -1,6 +1,8 @@
-import Connection from "../loaders/mysql.js"
+const path = require("path")
 
-import Authorization from "../library/authorization"
+const Connection = require(path.join(__dirname, "../loaders/mysql.js"))
+
+const Authorization = require(path.join(__dirname, "../library/authorization"))
 
 const returnData = {};
 
@@ -162,4 +164,4 @@ const InstitutionModel = {
   getInstitutionsByUser: getInstitutionsByUser
 };
 
-export default InstitutionModel;
+module.exports = InstitutionModel;

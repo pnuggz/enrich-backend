@@ -1,7 +1,7 @@
-import fetch from "node-fetch"
+const fetch = require("node-fetch")
 
-import { format as dateFnsFormat } from "date-fns/format"
-import { dateFnsStartOfMonth as dateFnsStartOfMonth } from "date-fns"
+const dateFnsFormat = require("date-fns/format")
+const dateFnsStartOfMonth = require("date-fns/startOfMonth")
 const dateFns = {
   format: dateFnsFormat,
   startOfMonth: dateFnsStartOfMonth
@@ -44,7 +44,19 @@ const dataFetch = (url, fetchMethod, headers, body = null) => {
   });
 };
 
-const createUser = (req, email, mobile = "") => {
+const getToken = async (basiqAccessToken) => {
+  const fetchMethod = "POST";
+  const url = `https://au-api.basiq.io/token`;
+  const headers = {
+    Authorization: `Basic ${basiqAccessToken}`,
+    "Content-Type": `application/x-www-form-urlencoded`,
+    "basiq-version": `2.0`
+  };
+
+  return dataFetch(url, fetchMethod, headers);
+}
+
+const createUser = async (req, email, mobile = "") => {
   const basiqData = req.basiq;
   const accessToken = basiqData.accessToken;
 
@@ -285,7 +297,21 @@ const getInstitutions = async req => {
   return dataFetch(url, fetchMethod, headers);
 };
 
+const getJobByJobId = async (req, basiqJobId) => {
+  const basiqData = req.basiq;
+  const accessToken = basiqData.accessToken;
+  console.log(basiqJobId)
+  const fetchMethod = "GET";
+  const url = `https://au-api.basiq.io/jobs/` + basiqJobId;
+  const headers = {
+    Authorization: `Bearer ${accessToken}`
+  };
+
+  return dataFetch(url, fetchMethod, headers);
+}
+
 const BasiqService = {
+  getToken: getToken,
   createUser: createUser,
   getUser: getUser,
   updateUser: updateUser,
@@ -297,7 +323,8 @@ const BasiqService = {
   getTransactions: getTransactions,
   getTransactionsById: getTransactionsById,
   getInstitutions: getInstitutions,
-  getTransactionsByAccount: getTransactionsByAccount
+  getTransactionsByAccount: getTransactionsByAccount,
+  getJobByJobId: getJobByJobId
 };
 
-export default BasiqService;
+module.exports = BasiqService;

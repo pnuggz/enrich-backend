@@ -1,6 +1,6 @@
-import dotenv from 'dotenv';
-import fs from 'fs';
-import path from 'path';
+const path = require("path")
+const dotenv = require('dotenv')
+const fs = require('fs')
 
 // Set the NODE_ENV to 'development' by default
 process.env.NODE_ENV = process.env.NODE_ENV || "development";
@@ -58,4 +58,4 @@ const config = {
   workerpool: {}
 };
 
-export default config;
+module.exports = config;
