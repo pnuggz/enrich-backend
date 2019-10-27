@@ -4,3 +4,4 @@ private.key
 public.key
 yarn-error.log
 certs/
+build/

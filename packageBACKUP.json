@@ -4,10 +4,7 @@
   "description": "Nodejs Express Architechture",
   "main": "src/app.js",
   "scripts": {
-    "start": "node --inspect=0.0.0.0 ./build/app.js",
-    "dev": "nodemon --inspect=0.0.0.0 --exec \"babel-node ./src\"",
-    "build:clean": "rm -rf build",
-    "build": "yarn build:clean && yarn babel -Dd build src --extensions \".js\""
+    "dev": "NODE_ENV=development nodemon --exec \"babel-node ./src\""
   },
   "author": "Ryan Nugraha",
   "license": "ISC",
@@ -25,8 +22,11 @@
     "jsonwebtoken": "^8.5.1",
     "mysql": "^2.17.1",
     "mysql2": "^1.7.0",
+    "node-cron": "^2.0.3",
+    "node-fetch": "^2.6.0",
     "nodemailer": "^6.3.0",
     "plaid": "^4.3.0",
+    "socket.io": "^2.3.0",
     "string-hash": "^1.1.3",
     "webpack": "^4.41.2",
     "winston": "^3.2.1",

@@ -45,6 +45,38 @@ const createUser = async req => {
   }
 }
 
+const getUsersAll = async () => {
+  const queryString1 = `
+    SELECT 
+    users.id,
+    users.id as userId,
+    users.username,
+    users.email,
+    users.is_active
+    FROM users 
+  `;
+
+  try {
+    const [results, fields] = await Connection.query(queryString1)
+
+    returnData.status = {
+      code: 200,
+      error: ``,
+      message: ``
+    };
+    returnData.data = results;
+    return (returnData);
+  } catch (err) {
+    console.log(err)
+    returnData.status = {
+      code: 500,
+      error: err,
+      message: `Internal server error.`
+    };
+    return (returnData);
+  }
+}
+
 const getUser = async userId => {
   const queryString1 = `
     SELECT 
@@ -338,10 +370,12 @@ const saveUserBasiqAccounts = async (userId, institutionId, accounts) => {
     (
       account_tracking_id, 
       balance, 
-      month
+      month,
+      year
     ) 
     VALUES 
     (
+      ?,
       ?,
       ?,
       ?
@@ -380,10 +414,12 @@ const saveUserBasiqAccounts = async (userId, institutionId, accounts) => {
       const accountTrackingId = results2.insertId
 
       const month = dateFns.format(new Date(), "M");
+      const year = dateFns.format(new Date(), "yyyy");
       const queryValues3 = [
         accountTrackingId,
         0,
         month,
+        year,
         accountTrackingId
       ]
 
@@ -466,6 +502,7 @@ const linkUserInstitution = async (userId, institutionId) => {
 const UserModel = {
   getUserFromToken: getUserFromToken,
   createUser: createUser,
+  getUsersAll: getUsersAll,
   getUser: getUser,
   getUserByLoginIncPassword: getUserByLoginIncPassword,
   createVerificationToken: createVerificationToken,
