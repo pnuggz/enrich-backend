@@ -1,6 +1,6 @@
 FROM node:12.13.0 as builder
 
-ARG NODE_ENV=production
+ARG NODE_ENV=development
 ENV NODE_ENV=${NODE_ENV}
 
 RUN apk --no-cache add python make g++
