@@ -3,17 +3,21 @@ FROM node:12.13.0 as builder
 ARG NODE_ENV=development
 ENV NODE_ENV=${NODE_ENV}
 
-COPY package.json ./usr/src/app
-COPY yarn.lock ./usr/src/app
-RUN yarn
-
-FROM node:12.13.0
 WORKDIR /usr/src/app
-COPY --from=builder node_modules node_modules
 
-ADD . /usr/src/app
+COPY package.json ./
+COPY yarn.lock ./
+RUN yarn
+COPY . .
 RUN yarn build
 
-COPY . .
+FROM node:12.13.0
+
+WORKDIR /usr/src/app
+
+COPY package.json ./
+COPY yarn.lock ./
+RUN yarn
+COPY --from=builder /usr/src/app/build ./build
 
 CMD [ "yarn", "start" ]
