@@ -4,6 +4,7 @@ const config = require(path.join(__dirname, "../config/index.js"))
 const basiqConfig = config.basiq
 
 const JobModel = require(path.join(__dirname, "../models/jobModel.js"))
+const UserModel = require(path.join(__dirname, "../models/userModel.js"))
 const BasiqService = require(path.join(__dirname, "../services/basiqService.js"))
 const NotificationService = require(path.join(__dirname, "../services/notificationService.js"))
 
@@ -27,7 +28,6 @@ const checkJobsAndCreateNotification = async () => {
   }
 
   const basiqJobs = basiqJobsResponse.data
-
   for (let i = 0; i < basiqJobs.length; i++) {
     const basiqJob = basiqJobs[i]
     const type = basiqJob.type
@@ -39,14 +39,29 @@ const checkJobsAndCreateNotification = async () => {
         notificationResponse = await createErrorNotification(basiqJob)
       } else if (userConnectionJobResponse.status.code === 200) {
         notificationResponse = await createSuccessNotification(basiqJob)
+        const userId = basiqJob.user_id
+        const basiqInstitutionId = basiqJob.unique_identifier
+
+        const getInstitutionsByBasiqInstitutionIdResponse = await InstitutionModel.getInstitutionsByBasiqInstitutionId(basiqInstitutionId)
+        if (getInstitutionsByBasiqInstitutionIdResponse.status.code !== 200) {
+          console.log(getInstitutionsByBasiqInstitutionIdResponse.status)
+          continue
+        }
+        const institutionId = getInstitutionsByBasiqInstitutionIdResponse.data.id
+
+        const linkUserInstitutionResponse = await UserModel.linkUserInstitution(userId, institutionId)
+        if (linkUserInstitutionResponse.status.code !== 200) {
+          console.log(linkUserInstitutionResponse.status)
+          continue
+        }
       }
     }
 
-    if(notificationResponse.status.code === 200) {
+    if (notificationResponse.status.code === 200) {
       const jobUpdateResponse = await JobModel.updateBasiqJobByJobId(basiqJob.job_id)
       if (jobUpdateResponse.status.code !== 200) {
         console.log(jobUpdateResponse.status)
-        return
+        continue
       }
     }
   }

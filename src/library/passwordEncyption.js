@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs"
+const bcrypt = require("bcryptjs")
 
 const hashPassword = (pass, passSalt) => {
   return new Promise((res, rej) => {
@@ -29,4 +29,4 @@ const PasswordEncryption = {
   genPasswordSalt: genPasswordSalt
 }
 
-export default PasswordEncryption
+module.exports = PasswordEncryption

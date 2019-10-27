@@ -1,9 +1,12 @@
-import PasswordEncryption from "../library/passwordEncyption"
+const path = require("path")
 
-import BasiqService from "../services/basiqService"
+const PasswordEncryption = require(path.join(__dirname, "../library/passwordEncyption"))
 
-import UserModel from "../models/userModel"
-import JobModel from "../models/jobModel"
+const BasiqService = require(path.join(__dirname, "../services/basiqService"))
+
+const UserModel = require(path.join(__dirname, "../models/userModel"))
+const JobModel = require(path.join(__dirname, "../models/jobModel"))
+const InstitutionModel = require(path.join(__dirname, "../models/institutionModel"))
 
 const returnData = {};
 
@@ -67,6 +70,69 @@ const signupUser = async req => {
     };
     return (returnData);
   }
+}
+
+const getUserBasiqData = async req => {
+  const userId = req.user.id
+
+  const userBasiqDataResponse = await UserModel.getUserBasiqData(userId)
+  if (userBasiqDataResponse.status.code !== 200) {
+    returnData.status = userBasiqDataResponse.status
+    return returnData
+  }
+
+  returnData.status = returnData.status = {
+    code: 200,
+    error: ``,
+    message: ``
+  }
+  returnData.data = userBasiqDataResponse.data
+  return returnData
+}
+
+const getUserBasiqAccounts = async req => {
+  const userId = req.user.id
+
+  const userBasiqDataResponse = await UserModel.getUserBasiqAccounts(userId)
+  if (userBasiqDataResponse.status.code !== 200) {
+    returnData.status = userBasiqDataResponse.status
+    return returnData
+  }
+
+  returnData.status = {
+    code: 200,
+    error: ``,
+    message: ``
+  }
+  returnData.data = userBasiqDataResponse.data
+  return returnData
+}
+
+const saveUserBasiqAccounts = async req => {
+  const userId = req.user.id
+  const data = req.body
+  const basiqInstitutionId = data.basiqInstitutionId
+  const accounts = data.accounts
+
+  const getInstitutionsByBasiqInstitutionIdResponse = await InstitutionModel.getInstitutionsByBasiqInstitutionId(basiqInstitutionId)
+  if (getInstitutionsByBasiqInstitutionIdResponse.status.code !== 200) {
+    returnData.status = getInstitutionsByBasiqInstitutionIdResponse.status
+    return returnData
+  }
+
+  const institutionId = getInstitutionsByBasiqInstitutionIdResponse.data[0].id
+  const saveAccountsResponse = await UserModel.saveUserBasiqAccounts(userId, institutionId, accounts)
+  if (saveAccountsResponse.status.code !== 200) {
+    returnData.status = saveAccountsResponse.status
+    return returnData
+  }
+
+  returnData.status = {
+    code: 200,
+    error: ``,
+    message: ``
+  }
+  return returnData
 }
 
 const checkOrCreateBasiqUser = async req => {
@@ -162,7 +228,10 @@ const linkUserInstitution = async (req, userBasiqData) => {
 const UserService = {
   signupUser: signupUser,
   checkOrCreateBasiqUser: checkOrCreateBasiqUser,
-  linkUserInstitution: linkUserInstitution
+  linkUserInstitution: linkUserInstitution,
+  getUserBasiqData: getUserBasiqData,
+  getUserBasiqAccounts: getUserBasiqAccounts,
+  saveUserBasiqAccounts: saveUserBasiqAccounts
 };
 
-export default UserService;
+module.exports = UserService;

@@ -37,10 +37,10 @@ const InstitutionRouter = app => {
     res.json(returnData);
   })
 
-  route.get("/user", isAuth, renewToken, async (req, res) => {
+  route.get("/user/accounts", isAuth, renewToken, async (req, res) => {
     const returnData = req.returnData
 
-    const institutionsResponse = await InstitutionService.getInstitutionsByUser(req);
+    const institutionsResponse = await InstitutionService.getInstitutionsByUserWithAccounts(req);
     if (institutionsResponse.status.code !== 200) {
       returnData.status = institutionsResponse.status;
       res.status(institutionsResponse.status.code).json(returnData);

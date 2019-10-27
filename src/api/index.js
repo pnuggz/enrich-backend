@@ -9,6 +9,8 @@ import user from "./routes/user"
 import institution from "./routes/institution"
 import notification from "./routes/notification"
 
+import auto from "./routes/auto"
+
 import test from "./routes/test.js"
 
 // guaranteed to get dependencies
@@ -23,6 +25,8 @@ const routes = () => {
   account(app);
   institution(app);
   notification(app)
+
+  auto(app)
 
   test(app);
 

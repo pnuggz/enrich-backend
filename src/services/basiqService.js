@@ -37,7 +37,8 @@ const dataFetch = (url, fetchMethod, headers, body = null) => {
       .catch(err => {
         console.log(err);
         returnData.status = {
-          code: err.status
+          code: err.status,
+          error: err
         };
         rej(returnData);
       });
@@ -182,13 +183,17 @@ const getAccountsByInstitution = async (
     Authorization: `Bearer ${accessToken}`
   };
 
+  const returnData = {}
+
   return new Promise((res, rej) => {
     dataFetch(url, fetchMethod, headers)
       .then(response => {
         const accounts = response.data.data.filter(
           account => account.institution === basiqInstitutionId
         );
-        res(accounts);
+        returnData.status = response.status
+        returnData.data = accounts
+        res(returnData);
       })
       .catch(err => {
         rej(err);
@@ -209,12 +214,26 @@ const getAccountsById = async (req, basiqUserId, basiqAccountId) => {
   return dataFetch(url, fetchMethod, headers);
 };
 
-const getTransactions = async (req, basiqUserId) => {
+const getTransactions = async (req, basiqUserId, date1 = null, date2 = null) => {
   const basiqData = req.basiq;
   const accessToken = basiqData.accessToken;
 
+  const startDate =
+    date1 !== null
+      ? dateFns.format(date1, "yyyy-MM-dd")
+      : null;
+  const endDate =
+    date2 !== null
+      ? dateFns.format(date2, "yyyy-MM-dd")
+      : null;
+
+  const filter = (startDate !== null && endDate !== null) ?
+    `?filter=${encodeURI(
+      `transaction.postDate.bt('${startDate}','${endDate}')`
+    )}` : ``
+
   const fetchMethod = "GET";
-  const url = `https://au-api.basiq.io/users/${basiqUserId}/transactions`;
+  const url = `https://au-api.basiq.io/users/${basiqUserId}/transactions${filter}`;
   const headers = {
     Authorization: `Bearer ${accessToken}`
   };
@@ -242,24 +261,26 @@ const getTransactionsByAccount = async (
   date1 = null,
   date2 = null
 ) => {
-  const startDate =
-    date1 !== null
-      ? dateFns.format(date1, "yyyy-MM-dd")
-      : dateFns.format(dateFns.startOfMonth(new Date()), "yyyy-MM-dd");
-  const endDate =
-    date2 !== null
-      ? dateFns.format(date2, "yyyy-MM-dd")
-      : dateFns.format(new Date(), "yyyy-MM-dd");
-
   const basiqData = req.basiq;
   const accessToken = basiqData.accessToken;
 
-  const filter = encodeURI(
-    `transaction.postDate.bt('${startDate}','${endDate}')`
-  );
+  const startDate =
+    date1 !== null
+      ? dateFns.format(date1, "yyyy-MM-dd")
+      : null;
+  const endDate =
+    date2 !== null
+      ? dateFns.format(date2, "yyyy-MM-dd")
+      : null;
+
+
+  const filter = (startDate !== null && endDate !== null) ?
+    `?filter=${encodeURI(
+      `transaction.postDate.bt('${startDate}','${endDate}')`
+    )}` : ``
 
   const fetchMethod = "GET";
-  const url = `https://au-api.basiq.io/users/${basiqUserId}/transactions?filter=${filter}`;
+  const url = `https://au-api.basiq.io/users/${basiqUserId}/transactions${filter}`;
   const headers = {
     Authorization: `Bearer ${accessToken}`
   };
@@ -300,7 +321,7 @@ const getInstitutions = async req => {
 const getJobByJobId = async (req, basiqJobId) => {
   const basiqData = req.basiq;
   const accessToken = basiqData.accessToken;
-  console.log(basiqJobId)
+
   const fetchMethod = "GET";
   const url = `https://au-api.basiq.io/jobs/` + basiqJobId;
   const headers = {

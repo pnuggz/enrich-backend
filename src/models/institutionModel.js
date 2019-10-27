@@ -41,9 +41,7 @@ const getInstitutions = async () => {
   }
 };
 
-const getInstitutionsByUser = async (req) => {
-  const userId = req.user.id
-
+const getInstitutionsByUser = async (userId) => {
   const queryString1 = `
     SELECT 
     users_has_institution.user_id as userId,
@@ -66,6 +64,41 @@ const getInstitutionsByUser = async (req) => {
       returnData.status = Authorization.defaultUnauthMsg();
       return (returnData);
     }
+
+    returnData.status = {
+      code: 200,
+      error: ``,
+      message: ``
+    };
+    returnData.data = results;
+    return (returnData);
+  } catch (err) {
+    console.log(err)
+    returnData.status = {
+      code: 500,
+      error: err,
+      message: `Internal server error.`
+    };
+    return (returnData);
+  }
+};
+
+const getInstitutionsByBasiqInstitutionId = async (basiqInstitutionId) => {
+  const queryString1 = `
+    SELECT 
+    institutions.id,
+    institutions.api_id,
+    institutions.institution_id,
+    institutions.name,
+    institutions.shortname,
+    institutions.login_id_caption,
+    institutions.password_caption
+    FROM institutions
+    WHERE institutions.institution_id = ?
+  `;
+
+  try {
+    const [results, fields] = await Connection.query(queryString1, [basiqInstitutionId])
 
     returnData.status = {
       code: 200,
@@ -161,7 +194,8 @@ const saveInstitutions = async (apiId, institutions) => {
 const InstitutionModel = {
   saveInstitutions: saveInstitutions,
   getInstitutions: getInstitutions,
-  getInstitutionsByUser: getInstitutionsByUser
+  getInstitutionsByUser: getInstitutionsByUser,
+  getInstitutionsByBasiqInstitutionId: getInstitutionsByBasiqInstitutionId
 };
 
 module.exports = InstitutionModel;

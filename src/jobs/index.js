@@ -2,15 +2,15 @@ import workerpool from "workerpool";
 
 import config from "../config";
 
-import transactions from "./transactions";
+import transactions from "./transactionsIndex";
 
 const workerpoolConfig = config.workerpool;
 
 const pool = workerpool.pool();
 
-const loadTransactions = (input = null, callback = null) => {
+const updateTransactions = (input = null, callback = null) => {
   pool
-    .exec(transactions.loadTransactions, [input])
+    .exec(transactions.updateTransactions, [input])
     .then(callback)
     .catch(function (err) {
       console.error(err);
@@ -18,7 +18,7 @@ const loadTransactions = (input = null, callback = null) => {
 };
 
 const workerJobs = {
-  loadTransactions: loadTransactions
+  updateTransactions: updateTransactions
 };
 
 export default workerJobs;

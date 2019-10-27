@@ -1,9 +1,15 @@
-import hash from "string-hash"
-import crypto from "crypto-random-string"
+const path = require("path")
+const hash = require("string-hash")
+const crypto = require("crypto-random-string")
 
-import Connection from "../loaders/mysql"
+const dateFnsFormat = require("date-fns/format")
+const dateFns = {
+  format: dateFnsFormat
+}
 
-import Authorization from "../library/authorization"
+const Connection = require(path.join(__dirname, "../loaders/mysql"))
+
+const Authorization = require(path.join(__dirname, "../library/authorization"))
 
 const returnData = {};
 
@@ -212,7 +218,7 @@ const getUserFromToken = async userId => {
   }
 }
 
-const getUserBasiqAccount = async userId => {
+const getUserBasiqData = async userId => {
   const queryString1 = `
     SELECT users_basiq.user_id, 
     users_basiq.user_id as userId ,
@@ -236,6 +242,163 @@ const getUserBasiqAccount = async userId => {
     returnData.data = results;
     return (returnData);
   } catch (err) {
+    console.log(err)
+    returnData.status = {
+      code: 500,
+      error: err,
+      message: `Internal server error.`
+    };
+    return (returnData);
+  }
+}
+
+const getUserBasiqAccounts = async userId => {
+  const queryString1 = `
+    SELECT 
+    users_basiq_accounts.*,
+    users_basiq_accounts.user_id as userId 
+    FROM users_basiq_accounts
+    WHERE users_basiq_accounts.user_id = ?`;
+
+  try {
+    const [results, fields] = await Connection.query(queryString1, [userId])
+
+    if (!Authorization.authorize(results, userId)) {
+      returnData.status = Authorization.defaultUnauthMsg();
+      return (returnData);
+    }
+
+    returnData.status = {
+      code: 200,
+      error: ``,
+      message: ``
+    };
+    returnData.data = results;
+    return (returnData);
+  } catch (err) {
+    console.log(err)
+    returnData.status = {
+      code: 500,
+      error: err,
+      message: `Internal server error.`
+    };
+    return (returnData);
+  }
+}
+
+const saveUserBasiqAccounts = async (userId, institutionId, accounts) => {
+  const queryString1 = `
+    INSERT INTO users_basiq_accounts
+    (
+      user_id,
+      institution_id,
+      basiq_account_id,
+      account_number,
+      name,
+      type,
+      product,
+      basiq_status,
+      active
+    )
+    VALUES 
+    (
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?
+    )
+    ON DUPLICATE KEY UPDATE user_id = ?
+  `;
+
+  const queryString2 = `
+    INSERT INTO accounts_tracking
+    (
+      account_id,
+      tracking_type,
+      include_dollar,
+      monthly_limit
+    )
+    VALUES
+    (
+      ?,
+      ?,
+      ?,
+      ?
+    )
+    ON DUPLICATE KEY UPDATE account_id = ?
+  `;
+
+  const queryString3 = `
+    INSERT INTO accounts_tracking_monthly 
+    (
+      account_tracking_id, 
+      balance, 
+      month
+    ) 
+    VALUES 
+    (
+      ?,
+      ?,
+      ?
+    )
+    ON DUPLICATE KEY UPDATE account_tracking_id = ?
+  `;
+
+  try {
+    await Connection.query('START TRANSACTION')
+    for (let i = 0; i < accounts.length; i++) {
+      const account = accounts[i]
+      const queryValues1 = [
+        userId,
+        institutionId,
+        account.id,
+        account.accountNo,
+        account.name,
+        account.class.type,
+        account.class.product,
+        (account.status === "available") ? 1 : 0,
+        1,
+        userId
+      ]
+
+      const [results, fields] = await Connection.query(queryString1, queryValues1)
+      const accountId = results.insertId
+
+      const queryValues2 = [
+        accountId,
+        account.settings.type,
+        account.settings.include_dollar,
+        account.settings.limit,
+        accountId
+      ]
+      const [results2, fields2] = await Connection.query(queryString2, queryValues2)
+      const accountTrackingId = results2.insertId
+
+      const month = dateFns.format(new Date(), "M");
+      const queryValues3 = [
+        accountTrackingId,
+        0,
+        month,
+        accountTrackingId
+      ]
+
+      const [results3, fields3] = await Connection.query(queryString3, queryValues3)
+    }
+    await Connection.query('COMMIT')
+
+    returnData.status = {
+      code: 200,
+      error: ``,
+      message: ``
+    };
+    return (returnData);
+  } catch (err) {
+    Connection.query('ROLLBACK')
     console.log(err)
     returnData.status = {
       code: 500,
@@ -273,6 +436,33 @@ const linkUserBasiqAccount = async (userId, basiqId) => {
   }
 }
 
+const linkUserInstitution = async (userId, institutionId) => {
+  const queryString1 = `
+    INSERT INTO users_has_institution (user_id, institution_id) 
+    VALUES (?, ?)
+    ON DUPLICATE KEY UPDATE user_id = ?
+  `;
+
+  try {
+    const [results, fields] = await Connection.query(queryString1, [userId, institutionId, userId])
+    returnData.status = {
+      code: 200,
+      error: ``,
+      message: ``
+    };
+    returnData.data = results;
+    return (returnData);
+  } catch (err) {
+    console.log(err)
+    returnData.status = {
+      code: 500,
+      error: err,
+      message: `Internal server error.`
+    };
+    return (returnData);
+  }
+}
+
 const UserModel = {
   getUserFromToken: getUserFromToken,
   createUser: createUser,
@@ -280,8 +470,11 @@ const UserModel = {
   getUserByLoginIncPassword: getUserByLoginIncPassword,
   createVerificationToken: createVerificationToken,
   getVerificationTokenByUser: getVerificationTokenByUser,
-  getUserBasiqAccount: getUserBasiqAccount,
-  linkUserBasiqAccount: linkUserBasiqAccount
+  getUserBasiqData: getUserBasiqData,
+  getUserBasiqAccounts: getUserBasiqAccounts,
+  saveUserBasiqAccounts: saveUserBasiqAccounts,
+  linkUserBasiqAccount: linkUserBasiqAccount,
+  linkUserInstitution: linkUserInstitution
 };
 
-export default UserModel;
+module.exports = UserModel;

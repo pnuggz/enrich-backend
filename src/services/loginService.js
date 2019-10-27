@@ -47,7 +47,7 @@ const authorizeUser = async req => {
     returnData.status = userResponse.status
     returnData.data = user
     returnData.token = tokenResult.token
-    returnData.tokenCreatedDate = tokenResult.tokenCreatedDate
+    returnData.tokenCreatedDate = tokenResult.createdDate
     return returnData
   } catch (err) {
     console.log(err);
