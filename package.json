@@ -4,7 +4,10 @@
   "description": "Nodejs Express Architechture",
   "main": "src/app.js",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon --exec \"babel-node ./src\""
+    "start": "node --inspect=0.0.0.0 src/app.js",
+    "dev": "nodemon --inspect=0.0.0.0 --exec \"babel-node ./src\"",
+    "build:clean": "rm -rf build",
+    "build": "yarn build:clean && yarn babel -Dd build src --extensions \".js\""
   },
   "author": "Ryan Nugraha",
   "license": "ISC",
