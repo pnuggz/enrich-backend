@@ -7,7 +7,8 @@
     "start": "node --inspect=0.0.0.0 ./build/app.js",
     "dev": "nodemon --inspect=0.0.0.0 --exec \"babel-node ./src\"",
     "build:clean": "rm -rf build",
-    "build": "yarn build:clean && yarn babel -Dd build src --extensions \".js\""
+    "build": "yarn build:clean && yarn babel -Dd build src --extensions \".js\"",
+    "officeDev": "NODE_ENV=development nodemon --exec \"babel-node ./src\""
   },
   "author": "Ryan Nugraha",
   "license": "ISC",

@@ -10,15 +10,13 @@ import UserService from "../../services/userService.js"
 
 import workerJobs from "../../jobs"
 
-const returnData = {};
-
 const InstitutionRouter = app => {
   const route = Router();
 
   app.use("/institution", route);
 
-  route.get("/all", isAuth, renewToken, async (req, res) => {
-    const returnData = req.returnData
+  route.get("/all", async (req, res) => {
+    const returnData = {};
 
     const institutionsResponse = await InstitutionService.getInstitutions();
     if (institutionsResponse.status.code !== 200) {

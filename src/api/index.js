@@ -8,6 +8,7 @@ import account from "./routes/account"
 import user from "./routes/user"
 import institution from "./routes/institution"
 import notification from "./routes/notification"
+import publicRouter from "./routes/public"
 
 import auto from "./routes/auto"
 
@@ -25,6 +26,7 @@ const routes = () => {
   account(app);
   institution(app);
   notification(app)
+  publicRouter(app)
 
   auto(app)
 
